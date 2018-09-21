@@ -40,7 +40,7 @@ func(api *Api) Do(method string)  error{
 		req.URL.RawQuery = param.Encode()
 	}
 
-	api.Header = map[string]string{}
+	///api.Header = map[string]string{}
 	if api.ContentType == "" {
 		api.Header["Content-Type"] = "application/x-www-form-urlencoded"
 	}else{
