@@ -37,8 +37,8 @@ func(r *Init) Run()  {
 	r.Begin.Run(":"+os.Getenv("portHost"))
 }
 
-func(r *Init) RunTls(domain ...string) {
-	autotls.Run(r.Begin, domain...)
+func(r *Init) RunTls(domain ...string) error {
+	return autotls.Run(r.Begin, domain...)
 }
 
 func(r *Init) RunCert(cert,key string) {
