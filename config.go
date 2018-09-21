@@ -52,6 +52,7 @@ func(r *Init) RunTls(domain ...string) error {
 }
 
 func(r *Init) RunCert(cert,key string) {
+	go http.ListenAndServe(":80", http.HandlerFunc(redirect))
 	http.ListenAndServeTLS(":443", cert,key,r.Begin)
 }
 
