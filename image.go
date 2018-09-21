@@ -25,9 +25,9 @@ func(img *Image) Set(path string) error {
 		return err
 	}
 	switch ext {
-	case "png" :
+	case ".png" :
 		img.img, err = png.Decode(file)
-	case "gif" :
+	case ".gif" :
 		img.img, err = gif.Decode(file)
 	default:
 		img.img, err = jpeg.Decode(file)
@@ -50,9 +50,9 @@ func(img *Image) Resize(newSize uint,newPath string) error {
 	}
 	defer out.Close()
 	switch img.ext {
-	case "png" :
+	case ".png" :
 		png.Encode(out, image)
-	case "gif" :
+	case ".gif" :
 		gif.Encode(out, image, nil)
 	default:
 		jpeg.Encode(out, image, nil)
