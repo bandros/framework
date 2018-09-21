@@ -30,13 +30,15 @@ type Database struct {
 	BeforeOption string
 }
 
-func(sql *Database) Select(value string)  {
+func(sql *Database) Select(value string) *Database {
 	sql.sel = value
+	return sql
 }
 
-func(sql *Database) From(value string)  {
+func(sql *Database) From(value string) *Database {
 	sql.call = false
 	sql.from = value
+	return sql
 }
 
 func whereProccess(field string,value interface{}) string{
@@ -68,36 +70,44 @@ func whereProccess(field string,value interface{}) string{
 	return where
 
 }
-func(sql *Database) Where(field string,value interface{})  {
+func(sql *Database) Where(field string,value interface{}) *Database {
 	sql.whereAnd = append(sql.whereAnd,whereProccess(field,value))
+	return  sql
 }
-func(sql *Database) WhereOr(field string,value interface{})  {
+func(sql *Database) WhereOr(field string,value interface{}) *Database {
 	sql.whereOr = append(sql.whereOr,whereProccess(field,value))
+	return  sql
 }
 
-func(sql *Database) WhereIn(field string, values []string)  {
+func(sql *Database) WhereIn(field string, values []string) *Database{
 	sql.whereInAnd = append(sql.whereInAnd,field+" in('"+strings.Join(values,"','")+"')")
+	return  sql
 }
 
-func(sql *Database) WhereInOr(field string, values []string)  {
+func(sql *Database) WhereInOr(field string, values []string) *Database  {
 	sql.whereInOr = append(sql.whereInOr,field+" in('"+strings.Join(values,"','")+"')")
+	return  sql
 }
 
-func(sql *Database) Join(table string,on string,join string)  {
+func(sql *Database) Join(table string,on string,join string) *Database {
 	sql.join += join+" join "+table+" on "+on+"\n"
+	return  sql
 
 }
 
-func(sql *Database) OrderBy(orderBy string, dir string){
+func(sql *Database) OrderBy(orderBy string, dir string) *Database{
 	sql.orderBy = append(sql.orderBy, orderBy+" "+dir)
+	return  sql
 }
 
-func(sql *Database) GroupBy(groupBy string){
+func(sql *Database) GroupBy(groupBy string) *Database{
 	sql.groupBy = groupBy
+	return  sql
 }
 
-func(sql *Database) Limit(limit int,start int){
+func(sql *Database) Limit(limit int,start int) *Database{
 	sql.limit = "LIMIT "+strconv.Itoa(start)+","+strconv.Itoa(limit)
+	return  sql
 }
 
 func whereBuild(sql *Database){
@@ -155,13 +165,14 @@ func get(sql *Database) {
 	}
 }
 
-func(sql *Database) Call(procedure string,value []string){
+func(sql *Database) Call(procedure string,value []string) *Database{
 	values := "('"+strings.Join(value,"','")+"')"
 	sql.query = "call "+procedure+" "+values
 	sql.call = true
+	return  sql
 }
 
-func(sql *Database) Result() ([]map[string]string,error) {
+func(sql *Database) Result() ([]map[string]string,error){
 	if sql.from == "" && sql.call == false{
 		return  nil,errors.New("nothing table selected")
 	}
