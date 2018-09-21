@@ -3,9 +3,11 @@ package framework
 import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
+	"github.com/gin-gonic/autotls"
 	"github.com/gin-gonic/gin"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"net/http"
 	"os"
 )
 
@@ -33,6 +35,14 @@ func(r *Init) Get(){
 
 func(r *Init) Run()  {
 	r.Begin.Run(":"+os.Getenv("portHost"))
+}
+
+func(r *Init) RunTls(domain ...string) {
+	autotls.Run(r.Begin, domain...)
+}
+
+func(r *Init) RunCert(cert,key string) {
+	http.ListenAndServeTLS(":443", cert,key,r.Begin)
 }
 
 func Config(key string)  string{
