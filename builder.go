@@ -262,7 +262,7 @@ func insert(querySql string,value []interface{},sql *Database) (interface{},erro
 	}
 	return id,nil
 }
-func(sql *Database) Insert(query map[string]string) (interface{},error){
+func(sql *Database) Insert(query map[string]interface{}) (interface{},error){
 	if sql.from == ""{
 		return  nil,errors.New("nothing table selected")
 	}
