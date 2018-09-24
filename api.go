@@ -41,6 +41,9 @@ func(api *Api) Do(method string)  error{
 	}
 
 	///api.Header = map[string]string{}
+	if api.Header == nil {
+		api.Header = map[string]string{}
+	}
 	if api.ContentType == "" {
 		api.Header["Content-Type"] = "application/x-www-form-urlencoded"
 	}else{
