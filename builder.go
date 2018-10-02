@@ -92,6 +92,7 @@ func(sql *Database) StartGroup(op string) *Database {
 	where := map[string]string{}
 	where["op"] = op
 	where["value"] = "("
+	where["groupstart"] = "1"
 	sql.where = append(sql.where,where)
 	return  sql
 }
@@ -147,11 +148,20 @@ func(sql *Database) Limit(limit int,start int) *Database{
 func whereBuild(sql *Database){
 
 	sql.whereResult = ""
+	opShow := true;
 	for i,v := range sql.where {
-		if i >= 1 {
+		if i == 0 {
+			opShow = false
+		}
+
+		if opShow {
 			sql.whereResult += " "+v["op"]+" "
 		}
 		sql.whereResult += v["value"]
+		opShow = true
+		if  v["groupstart"] == "1" {
+			opShow = false
+		}
 	}
 }
 
