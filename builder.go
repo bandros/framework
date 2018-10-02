@@ -12,11 +12,8 @@ import (
 type Database struct {
 	sel string
 	from string
-	where string
-	whereOr []string
-	whereAnd []string
-	whereInOr []string
-	whereInAnd []string
+	where []map[string]string
+	whereResult string
 	join string
 	groupBy string
 	orderBy []string
@@ -47,7 +44,9 @@ func whereProccess(field string,value interface{}) string{
 	row := fields[0]
 	op := "="
 	var where string
-	if(len(fields)>1){
+	if(len(fields)>2){
+		op = fields[1] +" "+ fields[2]
+	}else if(len(fields)>1){
 		op = fields[1]
 	}
 	var	reflectValue = reflect.ValueOf(value)
@@ -71,21 +70,56 @@ func whereProccess(field string,value interface{}) string{
 
 }
 func(sql *Database) Where(field string,value interface{}) *Database {
-	sql.whereAnd = append(sql.whereAnd,whereProccess(field,value))
+	where := map[string]string{}
+	where["op"] = "AND"
+	where["value"] = whereProccess(field,value)
+	sql.where = append(sql.where,where)
 	return  sql
 }
 func(sql *Database) WhereOr(field string,value interface{}) *Database {
-	sql.whereOr = append(sql.whereOr,whereProccess(field,value))
+	where := map[string]string{}
+	where["op"] = "OR"
+	where["value"] = whereProccess(field,value)
+	sql.where = append(sql.where,where)
 	return  sql
 }
 
+func(sql *Database) StartGroup(op string) *Database {
+	op = strings.ToUpper(op)
+	if op != "AND" || op != "OR" {
+		op = "AND"
+	}
+	where := map[string]string{}
+	where["op"] = op
+	where["value"] = "("
+	sql.where = append(sql.where,where)
+	return  sql
+}
+
+func(sql *Database) EndGroup() *Database {
+	where := map[string]string{}
+	where["op"] = ""
+	where["value"] = ")"
+	sql.where = append(sql.where,where)
+	return  sql
+}
+
+
 func(sql *Database) WhereIn(field string, values []string) *Database{
-	sql.whereInAnd = append(sql.whereInAnd,field+" in('"+strings.Join(values,"','")+"')")
+	where := map[string]string{}
+	where["op"] = "AND"
+	where["value"] = field+" in('"+strings.Join(values,"','")+"')"
+	sql.where = append(sql.where,where)
+	sql.where = append(sql.where,where)
 	return  sql
 }
 
 func(sql *Database) WhereInOr(field string, values []string) *Database  {
-	sql.whereInOr = append(sql.whereInOr,field+" in('"+strings.Join(values,"','")+"')")
+	where := map[string]string{}
+	where["op"] = "OR"
+	where["value"] = field+" in('"+strings.Join(values,"','")+"')"
+	sql.where = append(sql.where,where)
+	sql.where = append(sql.where,where)
 	return  sql
 }
 
@@ -112,30 +146,12 @@ func(sql *Database) Limit(limit int,start int) *Database{
 
 func whereBuild(sql *Database){
 
-	sql.where = ""
-	if len(sql.whereOr)>= 1{
-		sql.where += strings.Join(sql.whereOr," \nOR ")
-	}
-	if len(sql.whereInOr)>= 1{
-		if sql.where != ""{
-			sql.where += " \nOR "
+	sql.whereResult = ""
+	for i,v := range sql.where {
+		if i >= 1 {
+			sql.whereResult += " "+v["op"]+" "
 		}
-		sql.where += strings.Join(sql.whereInOr," \nOR ")
-	}
-
-
-	if len(sql.whereAnd)>= 1{
-		if sql.where != ""{
-			sql.where += " \nAND "
-		}
-		sql.where += strings.Join(sql.whereAnd," \nAND ")
-	}
-
-	if len(sql.whereInAnd)>= 1{
-		if sql.where != ""{
-			sql.where += " \nAND "
-		}
-		sql.where += strings.Join(sql.whereInAnd," \nAND ")
+		sql.whereResult += v["value"]
 	}
 }
 
@@ -148,8 +164,8 @@ func get(sql *Database) {
 	if sql.join != "" {
 		sql.query+=" \n"+sql.join
 	}
-	if sql.where != "" {
-		sql.query+="\nWHERE "+sql.where
+	if sql.whereResult != "" {
+		sql.query+="\nWHERE "+sql.whereResult
 	}
 
 	if sql.groupBy != "" {
@@ -339,8 +355,8 @@ func(sql *Database) Update(query map[string]string) error {
 
 	querySql+= strings.Join(set,",")
 	sql.query = querySql
-	if sql.where != "" {
-		sql.query+="\nWHERE "+sql.where
+	if sql.whereResult != "" {
+		sql.query+="\nWHERE "+sql.whereResult
 	}
 
 	return  UpdateProses(sql,value)
@@ -384,8 +400,8 @@ func (sql *Database) Delete() error{
 	whereBuild(sql)
 	querySql := "DELETE FROM "+sql.from+" "
 	sql.query = querySql
-	if sql.where != "" {
-		sql.query+="\nWHERE "+sql.where
+	if sql.whereResult != "" {
+		sql.query+="\nWHERE "+sql.whereResult
 	}
 
 	_, err = sql.DB.Exec(sql.query)
