@@ -7,12 +7,12 @@ import (
 	"os"
 )
 
-func FileInfo(path string) (os.FileInfo,error) {
+func FileInfo(path string) (os.FileInfo, error) {
 	return os.Stat(path)
 }
 
-func FileExist(path string) bool{
-	_,err := FileInfo(path)
+func FileExist(path string) bool {
+	_, err := FileInfo(path)
 	if os.IsNotExist(err) {
 		return false
 	}
@@ -20,21 +20,20 @@ func FileExist(path string) bool{
 }
 
 func IsDir(path string) bool {
-	file,err := FileInfo(path)
+	file, err := FileInfo(path)
 	if err != nil {
-		return  false
+		return false
 	}
 	return file.IsDir()
 }
 
-func GetSizeFile(path string) (int64,error) {
-	file,err := FileInfo(path)
+func GetSizeFile(path string) (int64, error) {
+	file, err := FileInfo(path)
 	if err != nil {
-		return  0,err
+		return 0, err
 	}
-	return file.Size(),nil
+	return file.Size(), nil
 }
-
 
 func GetImageDimension(imagePath string) (int, int) {
 	file, err := os.Open(imagePath)
@@ -51,11 +50,11 @@ func GetImageDimension(imagePath string) (int, int) {
 func RemoveFile(path string) error {
 	if !FileExist(path) {
 		return errors.New("File not exist")
-	}else{
+	} else {
 		err := os.Remove(path)
 		if err != nil {
 			return err
 		}
 	}
-	return  nil
+	return nil
 }

@@ -19,9 +19,9 @@ type Init struct {
 	Begin *gin.Engine
 }
 
-func(r *Init) Get(){
+func (r *Init) Get() {
 	ReloadConfig()
-	if Config("env")!="dev" {
+	if Config("env") != "dev" {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	r.Begin = gin.Default()
@@ -33,8 +33,8 @@ func(r *Init) Get(){
 
 }
 
-func(r *Init) Run()  {
-	r.Begin.Run(":"+os.Getenv("portHost"))
+func (r *Init) Run() {
+	r.Begin.Run(":" + os.Getenv("portHost"))
 }
 
 func redirect(w http.ResponseWriter, req *http.Request) {
@@ -46,25 +46,25 @@ func redirect(w http.ResponseWriter, req *http.Request) {
 	http.Redirect(w, req, target, http.StatusPermanentRedirect)
 }
 
-func(r *Init) RunTls(domain ...string) error {
+func (r *Init) RunTls(domain ...string) error {
 	go http.ListenAndServe(":80", http.HandlerFunc(redirect))
 	return autotls.Run(r.Begin, domain...)
 }
 
-func(r *Init) RunCert(cert,key string) {
+func (r *Init) RunCert(cert, key string) {
 	go http.ListenAndServe(":80", http.HandlerFunc(redirect))
-	http.ListenAndServeTLS(":443", cert,key,r.Begin)
+	http.ListenAndServeTLS(":443", cert, key, r.Begin)
 }
 
-func Config(key string)  string{
+func Config(key string) string {
 	return os.Getenv(key)
 }
 
-func ReloadConfig()  {
+func ReloadConfig() {
 	var cfg ConfigNew
 	file, _ := ioutil.ReadFile("config.yml")
 	yaml.Unmarshal(file, &cfg)
-	for i,v := range cfg.Config[0] {
-		os.Setenv(i,v)
+	for i, v := range cfg.Config[0] {
+		os.Setenv(i, v)
 	}
 }
