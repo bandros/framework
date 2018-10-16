@@ -33,6 +33,9 @@ func(api *Api) Do(method string)  error{
 		}
 	}else{
 		req, err = http.NewRequest("GET", api.Url, nil)
+		if err != nil {
+			return err
+		}
 		param := req.URL.Query()
 		for i,v := range api.Data {
 			param.Set(i,v)
@@ -53,10 +56,10 @@ func(api *Api) Do(method string)  error{
 		req.Header.Set(i,v)
 	}
 	resp, err := client.Do(req)
-	defer resp.Body.Close()
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return err
