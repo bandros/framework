@@ -7,8 +7,15 @@ import (
 )
 
 func MysqlConnect() (*sql.DB, error) {
-	db, err := sql.Open("mysql", os.Getenv("mysqlUser")+":"+
-		os.Getenv("mysqlPwd")+"@"+os.Getenv("mysqlHost")+"/"+os.Getenv("mysqlDb"))
+	var db *sql.DB
+	var err error
+	if os.Getenv("mysqlGoogle") == "1" {
+		db, err = sql.Open("mysql", os.Getenv("MYSQL_CONNECTION"))
+	}else{
+		db, err = sql.Open("mysql", os.Getenv("mysqlUser")+":"+
+			os.Getenv("mysqlPwd")+"@"+os.Getenv("mysqlHost")+"/"+os.Getenv("mysqlDb"))
+	}
+
 	if (err) != nil {
 		return nil, err
 	}
