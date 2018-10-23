@@ -5,7 +5,7 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"net/http"
+	"mime/multipart"
 	"os"
 )
 
@@ -31,19 +31,22 @@ func StorageUpload(file string,bucket,filename string) (string,error) {
 	return url,nil
 }
 
-func StorageUploadFile(r *http.Request,img,bucket,filename string) (string,error) {
+func StorageUploadFile(file *multipart.FileHeader,bucket,filename string) (string,error) {
 	ctx := context.Background()
 	client, err := storage.NewClient(ctx)
 	if err != nil {
 		return "",err
 	}
-	f, fh, err := r.FormFile(img)
 	wc := client.Bucket(bucket).Object(filename).NewWriter(ctx)
 	wc.ACL = []storage.ACLRule{{Entity: storage.AllUsers, Role: storage.RoleReader}}
-	wc.ContentType = fh.Header.Get("Content-Type")
+	wc.ContentType = file.Header.Get("Content-Type")
 	wc.CacheControl = "public, max-age=86400"
 	defer wc.Close()
-	_,err = io.Copy(wc,f);
+	fh,err := file.Open()
+	if err != nil {
+		return "",err
+	}
+	_,err = io.Copy(wc,fh);
 	if  err != nil {
 		return "",err
 	}
