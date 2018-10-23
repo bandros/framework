@@ -7,6 +7,7 @@ import (
 	"image/gif"
 	"image/jpeg"
 	"image/png"
+	"mime/multipart"
 	"os"
 	"path/filepath"
 	"strings"
@@ -58,4 +59,50 @@ func(img *Image) Resize(newSize uint,newPath string) error {
 		jpeg.Encode(out, image, nil)
 	}
 	return  nil
+}
+
+
+
+func(img *Image) SetFile(file *multipart.FileHeader) error {
+	ext := strings.ToLower(filepath.Ext(file.Filename))
+	img.ext = ext
+
+	f, err := file.Open()
+	if err != nil {
+		return err
+	}
+	switch ext {
+	case ".png" :
+		img.img, err = png.Decode(f)
+	case ".gif" :
+		img.img, err = gif.Decode(f)
+	default:
+		img.img, err = jpeg.Decode(f)
+	}
+	if err != nil {
+		return err
+	}
+	f.Close()
+	return  nil
+}
+
+func(img *Image) ResizeFile(newSize uint) (*os.File,error) {
+	if img.img == nil{
+		return nil,errors.New("Set Path Before")
+	}
+	image := resize.Resize(newSize, 0, img.img, resize.Lanczos3)
+	out, err := os.Create("")
+	if err != nil {
+		return nil,err
+	}
+	defer out.Close()
+	switch img.ext {
+	case ".png" :
+		png.Encode(out, image)
+	case ".gif" :
+		gif.Encode(out, image, nil)
+	default:
+		jpeg.Encode(out, image, nil)
+	}
+	return  out,nil
 }
