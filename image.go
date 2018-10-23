@@ -93,6 +93,33 @@ func(img *Image) ResizeUpload(bucket string)  (Filename,error){
 	return f,nil
 }
 
+func(img *Image) ResizeMultiUpload(bucket string,size ...uint)  (Filename,error){
+	var f Filename
+	filename := unix() + ".png"
+	f.Dir = "https://storage.googleapis.com/"+bucket+"/"
+	f.Filename = filename
+	f.Fullpath = f.Dir+f.Filename
+	ctx := context.Background()
+	client, err := storage.NewClient(ctx)
+	if err != nil {
+		return Filename{},err
+	}
+	for _,v := range size {
+		img.img = imaging.Resize(img.img,int(v),0, imaging.Lanczos)
+		s := strconv.Itoa(int(v))
+		wc := client.Bucket(bucket).Object(s+f.Filename).NewWriter(ctx)
+		wc.CacheControl = "public, max-age=86400"
+		err = imaging.Encode(wc, img.img,imaging.PNG )
+		if err != nil {
+			return Filename{},err
+		}
+		if err = wc.Close(); err != nil {
+			return Filename{},err
+		}
+	}
+	return f,nil
+}
+
 func unix() string {
 	t := strconv.Itoa(int(time.Now().UnixNano()))
 	return t+uuid.Must(uuid.NewV4()).String()
