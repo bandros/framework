@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"os"
 )
 
@@ -30,18 +31,14 @@ func StorageUpload(file string,bucket,filename string) (string,error) {
 	return url,nil
 }
 
-func StorageUploadFile(file *os.File,bucket,filename string) (string,error) {
+func StorageUploadFile(file *multipart.FileHeader,bucket,filename string) (string,error) {
 	ctx := context.Background()
 	client, err := storage.NewClient(ctx)
 	if err != nil {
 		return "",err
 	}
 
-	//f,err := os.Open(file)
-	/*if err != nil {
-		return "",err
-	}*/
-	defer file.Close()
+
 	wc := client.Bucket(bucket).Object(filename).NewWriter(ctx)
 	defer wc.Close()
 	_,err = io.Copy(wc,file);
