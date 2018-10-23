@@ -86,14 +86,16 @@ func(img *Image) SetFile(file *multipart.FileHeader) error {
 	return  nil
 }
 
-func(img *Image) ResizeFile(newSize uint) (*os.File,error) {
+func(img *Image) GoogleUpload(newSize uint,bucket,filename string) (string,error) {
 	if img.img == nil{
-		return nil,errors.New("Set Path Before")
+		return "",errors.New("Set Path Before")
 	}
 	image := resize.Resize(newSize, 0, img.img, resize.Lanczos3)
-	out, err := os.Create("")
+	temp := "./temp"+img.ext
+	out, err := os.Create(temp)
+	defer RemoveFile(temp)
 	if err != nil {
-		return nil,err
+		return "",err
 	}
 	defer out.Close()
 	switch img.ext {
@@ -104,5 +106,9 @@ func(img *Image) ResizeFile(newSize uint) (*os.File,error) {
 	default:
 		jpeg.Encode(out, image, nil)
 	}
-	return  out,nil
+	url,err := StorageUpload(temp,bucket,filename)
+	if err != nil {
+		return "",err
+	}
+	return  url,nil
 }

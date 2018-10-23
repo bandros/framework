@@ -8,16 +8,21 @@ import (
 	"os"
 )
 
-func StorageUpload(file *os.File,bucket,filename string) (string,error) {
+func StorageUpload(file string,bucket,filename string) (string,error) {
 	ctx := context.Background()
 	client, err := storage.NewClient(ctx)
 	if err != nil {
 		return "",err
 	}
 
+	f,err := os.Open(file)
+	if err != nil {
+		return "",err
+	}
+	defer f.Close()
 	wc := client.Bucket(bucket).Object(filename).NewWriter(ctx)
 	defer wc.Close()
-	_,err = io.Copy(wc,file);
+	_,err = io.Copy(wc,f);
 	if  err != nil {
 		return "",err
 	}
