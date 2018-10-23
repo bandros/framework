@@ -10,6 +10,7 @@ import (
 	"log"
 	"mime/multipart"
 	"path"
+	"strconv"
 	"time"
 )
 
@@ -50,7 +51,7 @@ func(img *Image) ResizeSave(location string)  (Filename,error){
 	img.img = imaging.Resize(img.img,img.Width,img.Height, imaging.Lanczos)
 	filename := img.file.Filename
 	if img.Encrypt {
-		filename = string(time.Now().Unix())+uuid.Must(uuid.NewV4()).String() + path.Ext(filename)
+		filename = unix() + path.Ext(filename)
 	}
 	f.Dir = location
 	f.Filename = filename
@@ -66,7 +67,7 @@ func(img *Image) ResizeUpload(bucket string)  (Filename,error){
 	var f Filename
 	img.img = imaging.Resize(img.img,img.Width,img.Height, imaging.Lanczos)
 	filename := img.file.Filename
-	filename = string(time.Now().Unix())+uuid.Must(uuid.NewV4()).String() + ".png"
+	filename = unix() + ".png"
 	f.Dir = "https://storage.googleapis.com/"
 	f.Filename = filename
 	f.Fullpath = f.Dir+filename
@@ -97,4 +98,9 @@ func(img *Image) ResizeUpload(bucket string)  (Filename,error){
 	}
 
 	return f,nil
+}
+
+func unix() string {
+	t := strconv.Itoa(int(time.Now().Unix()))
+	return t+uuid.Must(uuid.NewV4()).String()
 }
