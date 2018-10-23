@@ -29,3 +29,25 @@ func StorageUpload(file string,bucket,filename string) (string,error) {
 	url := fmt.Sprintf("https://storage.googleapis.com/%s/%s",bucket,filename)
 	return url,nil
 }
+
+func StorageUploadFile(file *os.File,bucket,filename string) (string,error) {
+	ctx := context.Background()
+	client, err := storage.NewClient(ctx)
+	if err != nil {
+		return "",err
+	}
+
+	//f,err := os.Open(file)
+	/*if err != nil {
+		return "",err
+	}*/
+	defer file.Close()
+	wc := client.Bucket(bucket).Object(filename).NewWriter(ctx)
+	defer wc.Close()
+	_,err = io.Copy(wc,file);
+	if  err != nil {
+		return "",err
+	}
+	url := fmt.Sprintf("https://storage.googleapis.com/%s/%s",bucket,filename)
+	return url,nil
+}
