@@ -4,9 +4,11 @@ import (
 	"cloud.google.com/go/storage"
 	"context"
 	"fmt"
+	"github.com/satori/go.uuid"
 	"io"
 	"mime/multipart"
 	"os"
+	"path"
 )
 
 func StorageUpload(file string,bucket,filename string) (string,error) {
@@ -21,6 +23,7 @@ func StorageUpload(file string,bucket,filename string) (string,error) {
 		return "",err
 	}
 	defer f.Close()
+	filename = uuid.Must(uuid.NewV4()).String() + path.Ext(filename)
 	wc := client.Bucket(bucket).Object(filename).NewWriter(ctx)
 	defer wc.Close()
 	_,err = io.Copy(wc,f);

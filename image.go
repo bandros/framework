@@ -16,6 +16,7 @@ import (
 type Image struct {
 	img image.Image
 	ext string
+	file *multipart.FileHeader
 }
 
 func(img *Image) Set(path string) error {
@@ -66,6 +67,7 @@ func(img *Image) Resize(newSize uint,newPath string) error {
 func(img *Image) SetFile(file *multipart.FileHeader) error {
 	ext := strings.ToLower(filepath.Ext(file.Filename))
 	img.ext = ext
+	img.file = file
 
 	f, err := file.Open()
 	if err != nil {
@@ -91,13 +93,9 @@ func(img *Image) GoogleUpload(newSize uint,bucket,filename string) (string,error
 		return "",errors.New("Set Path Before")
 	}
 	image := resize.Resize(newSize, 0, img.img, resize.Lanczos3)
-	temp := "./temp"+img.ext
-	out, err := os.Create(temp)
-	defer RemoveFile(temp)
-	if err != nil {
-		return "",err
-	}
-	defer out.Close()
+	tmp := "tmp"+img.ext
+	out,err := os.Create(tmp)
+
 	switch img.ext {
 	case ".png" :
 		png.Encode(out, image)
@@ -106,7 +104,7 @@ func(img *Image) GoogleUpload(newSize uint,bucket,filename string) (string,error
 	default:
 		jpeg.Encode(out, image, nil)
 	}
-	url,err := StorageUpload(temp,bucket,filename)
+	url,err := StorageUpload(tmp,bucket,filename)
 	if err != nil {
 		return "",err
 	}
