@@ -16,6 +16,7 @@ type Database struct {
 	whereResult  string
 	join         string
 	groupBy      string
+	having       string
 	orderBy      []string
 	limit        string
 	query        string
@@ -144,6 +145,11 @@ func (sql *Database) Limit(limit int, start int) *Database {
 	return sql
 }
 
+func(sql *Database) Having(str string) *Database {
+	sql.having = str
+	return sql
+}
+
 func whereBuild(sql *Database) {
 
 	sql.whereResult = ""
@@ -179,6 +185,10 @@ func get(sql *Database) {
 
 	if sql.groupBy != "" {
 		sql.query += "\nGROUP BY " + sql.groupBy
+	}
+
+	if sql.having != "" {
+		sql.query += "\nHaving " + sql.having
 	}
 
 	if sql.orderBy != nil {
