@@ -26,6 +26,7 @@ type Database struct {
 	stmt         *Stmt
 	Option       string
 	BeforeOption string
+	transatction *Tx
 }
 
 func (sql *Database) Select(value string) *Database {
@@ -283,6 +284,7 @@ func (sql *Database) Row() (map[string]string, error) {
 }
 func insert(querySql string, value []interface{}, sql *Database) (interface{}, error) {
 	var err error
+	var stmt *Stmt
 	if sql.DB == nil {
 		sql.DB, err = MysqlConnect()
 		if err != nil {
@@ -292,7 +294,12 @@ func insert(querySql string, value []interface{}, sql *Database) (interface{}, e
 	//defer sql.DB.Close()
 	querySql += " " + sql.Option
 	sql.query = querySql
-	stmt, err := sql.DB.Prepare(querySql)
+	if sql.transatction != nil {
+		stmt, err = sql.transatction.Prepare(querySql)
+	}else{
+		stmt, err = sql.DB.Prepare(querySql)
+	}
+
 	sql.stmt = stmt
 	if err != nil {
 		return 0, err
@@ -381,13 +388,18 @@ func (sql *Database) Update(query map[string]string) error {
 
 func UpdateProses(sql *Database, value []interface{}) error {
 	var err error
+	var stmt *Stmt
 	if sql.DB == nil {
 		sql.DB, err = MysqlConnect()
 		if err != nil {
 			return err
 		}
 	}
-	stmt, err := sql.DB.Prepare(sql.query)
+	if sql.transatction != nil {
+		stmt, err = sql.transatction.Prepare(sql.query)
+	}else{
+		stmt, err = sql.DB.Prepare(sql.query)
+	}
 	sql.stmt = stmt
 	if err != nil {
 		return err
@@ -420,8 +432,12 @@ func (sql *Database) Delete() error {
 	if sql.whereResult != "" {
 		sql.query += "\nWHERE " + sql.whereResult
 	}
+	if sql.transatction != nil {
+		_, err = sql.transatction.Exec(sql.query)
+	}else{
+		_, err = sql.DB.Exec(sql.query)
+	}
 
-	_, err = sql.DB.Exec(sql.query)
 	if err != nil {
 		return err
 	}
@@ -447,4 +463,26 @@ func (sql *Database) Clear() {
 
 func (sql *Database) QueryView() string {
 	return sql.query
+}
+
+func (sql *Database) Transaction() error {
+	tx,err := sql.DB.Begin()
+	sql.transatction = tx
+	return  err
+}
+
+func (sql *Database) Rollback() error {
+	var err error
+	if sql.transatction != nil {
+		err = sql.transatction.Rollback()
+	}
+	return  err
+}
+
+func (sql *Database) Commit() error {
+	var err error
+	if sql.transatction != nil {
+		err = sql.transatction.Commit()
+	}
+	return  err
 }
