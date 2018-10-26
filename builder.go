@@ -476,6 +476,7 @@ func (sql *Database) Rollback() error {
 	if sql.transatction != nil {
 		err = sql.transatction.Rollback()
 	}
+	sql.transatction = nil
 	return  err
 }
 
@@ -484,5 +485,6 @@ func (sql *Database) Commit() error {
 	if sql.transatction != nil {
 		err = sql.transatction.Commit()
 	}
+	sql.transatction = nil
 	return  err
 }
