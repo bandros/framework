@@ -19,6 +19,7 @@ type Image struct {
 	Encrypt bool
 	Width int
 	Height int
+	Directory string
 }
 
 type Filename struct {
@@ -67,7 +68,10 @@ func(img *Image) ResizeUpload(bucket string)  (Filename,error){
 	img.img = imaging.Resize(img.img,img.Width,img.Height, imaging.Lanczos)
 	//filename := img.file.Filename
 	filename := unix() + ".png"
-	f.Dir = "https://storage.googleapis.com/"+bucket+"/"
+	f.Dir = "https://s1.tss.my.id/"+bucket+"/"
+	if img.Directory != ""{
+		f.Dir += img.Directory+"/"
+	}
 	f.Filename = filename
 	f.Fullpath = f.Dir+f.Filename
 
@@ -96,7 +100,10 @@ func(img *Image) ResizeUpload(bucket string)  (Filename,error){
 func(img *Image) ResizeMultiUpload(bucket string,size map[string]uint)  (Filename,error){
 	var f Filename
 	filename := unix() + ".png"
-	f.Dir = "https://storage.googleapis.com/"+bucket+"/"
+	f.Dir = "https://s1.tss.my.id/"+bucket+"/"
+	if img.Directory != ""{
+		f.Dir += img.Directory+"/"
+	}
 	f.Filename = filename
 	f.Fullpath = f.Dir+f.Filename
 	ctx := context.Background()
