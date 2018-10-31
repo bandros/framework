@@ -128,5 +128,6 @@ func(img *Image) ResizeMultiUpload(bucket string,size map[string]uint)  (Filenam
 
 func unix() string {
 	t := strconv.Itoa(int(time.Now().UnixNano()))
-	return t+uuid.Must(uuid.NewV4()).String()
+	uuidString,err:= uuid.NewV4()
+	return t+uuid.Must(uuidString,err).String()
 }
