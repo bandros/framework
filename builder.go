@@ -125,6 +125,24 @@ func (sql *Database) WhereInOr(field string, values []string) *Database {
 	return sql
 }
 
+func (sql *Database) WhereNotIn(field string, values []string) *Database {
+	where := map[string]string{}
+	where["op"] = "AND"
+	where["value"] = field + " not in('" + strings.Join(values, "','") + "')"
+	sql.where = append(sql.where, where)
+	sql.where = append(sql.where, where)
+	return sql
+}
+
+func (sql *Database) WhereNotInOr(field string, values []string) *Database {
+	where := map[string]string{}
+	where["op"] = "OR"
+	where["value"] = field + " not in('" + strings.Join(values, "','") + "')"
+	sql.where = append(sql.where, where)
+	sql.where = append(sql.where, where)
+	return sql
+}
+
 func (sql *Database) Join(table string, on string, join string) *Database {
 	sql.join += join + " join " + table + " on " + on + "\n"
 	return sql
