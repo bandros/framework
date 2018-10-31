@@ -4,8 +4,8 @@ import (
 	"cloud.google.com/go/storage"
 	"context"
 	"github.com/disintegration/imaging"
-	"github.com/satori/go.uuid"
 	"image"
+	"math/rand"
 	"mime/multipart"
 	"path"
 	"strconv"
@@ -128,6 +128,6 @@ func(img *Image) ResizeMultiUpload(bucket string,size map[string]uint)  (Filenam
 
 func unix() string {
 	t := strconv.Itoa(int(time.Now().UnixNano()))
-	uuidString,err:= uuid.NewV4()
-	return t+uuid.Must(uuidString,err).String()
+	t += strconv.Itoa(rand.Intn(1000))
+	return t
 }
