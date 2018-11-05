@@ -354,7 +354,7 @@ func (sql *Database) Insert(query map[string]interface{}) (interface{}, error) {
 
 }
 
-func (sql *Database) MultiInsert(query []map[string]string) (interface{}, error) {
+func (sql *Database) MultiInsert(query []map[string]interface{}) (interface{}, error) {
 	if sql.from == "" {
 		return nil, errors.New("nothing table selected")
 	}
