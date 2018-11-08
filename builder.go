@@ -226,7 +226,7 @@ func (sql *Database) Call(procedure string, value []string) *Database {
 	return sql
 }
 
-func (sql *Database) Result() ([]map[string]string, error) {
+func (sql *Database) Result() ([]map[string]interface{}, error) {
 	if sql.from == "" && sql.call == false {
 		return nil, errors.New("nothing table selected")
 	}
@@ -253,7 +253,7 @@ func (sql *Database) Result() ([]map[string]string, error) {
 	values := make([]interface{}, count)
 	valuePtrs := make([]interface{}, count)
 
-	result := []map[string]string{}
+	result := []map[string]interface{}{}
 	if count == 0 {
 		return nil, nil
 	}
@@ -262,7 +262,7 @@ func (sql *Database) Result() ([]map[string]string, error) {
 			valuePtrs[i] = &values[i]
 		}
 		rows.Scan(valuePtrs...)
-		data := map[string]string{}
+		data := map[string]interface{}{}
 		for i, col := range columns {
 			var v interface{}
 			val := values[i]
@@ -285,7 +285,7 @@ func (sql *Database) Result() ([]map[string]string, error) {
 
 }
 
-func (sql *Database) Row() (map[string]string, error) {
+func (sql *Database) Row() (map[string]interface{}, error) {
 	if sql.call == false {
 		sql.Limit(1, 0)
 	}
@@ -378,7 +378,7 @@ func (sql *Database) MultiInsert(query []map[string]interface{}) (interface{}, e
 	return insert(querySql, value, sql)
 }
 
-func (sql *Database) Update(query map[string]string) error {
+func (sql *Database) Update(query map[string]interface{}) error {
 	if sql.from == "" {
 		return errors.New("nothing table selected")
 	}
