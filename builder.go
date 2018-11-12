@@ -463,14 +463,14 @@ func (sql *Database) Delete() error {
 	return nil
 }
 func (sql *Database) Close() {
-	if sql.DB != nil {
-		sql.DB.Close()
-	}
 	if sql.row != nil {
 		sql.row.Close()
 	}
 	if sql.stmt != nil {
 		sql.stmt.Close()
+	}
+	if sql.DB != nil {
+		sql.DB.Close()
 	}
 }
 
