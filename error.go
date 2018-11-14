@@ -41,3 +41,12 @@ func ErrorHtml(err string,c *gin.Context){
 
 	}
 }
+
+func Error403(err string,c *gin.Context){
+	if err != "" {
+		c.HTML(http.StatusForbidden,"error/400",gin.H{
+			"msg" : err,
+		})
+
+	}
+}
