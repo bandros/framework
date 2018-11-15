@@ -36,10 +36,8 @@ func Auth(c *gin.Context)  {
 			pattern = strings.Replace(pattern,"*","(.*)",-1)
 			if r,_:=regexp.MatchString("^"+pattern+"$", url);r  {
 				show = true
-				fmt.Println("cocok : ","^"+v.(string)+"$",":",url)
 				break
 			}
-			fmt.Println("belum ada")
 		}
 		if !show {
 			Error403("Not found access",c)
