@@ -36,11 +36,8 @@ func AuthDb(c *gin.Context)  {
 
 	show := false
 	url := c.Request.URL.Path
-	fmt.Println("router :",router)
-	fmt.Println("url :",url)
 	for _,v := range router {
 		pattern := v["router"].(string)
-		fmt.Println("router :",pattern)
 		pattern = strings.Replace(pattern,"*","(.*)",-1)
 		if r,_:=regexp.MatchString("^"+pattern+"$", url);r  {
 			show = true
