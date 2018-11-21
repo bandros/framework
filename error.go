@@ -50,3 +50,10 @@ func Error403(err string,c *gin.Context){
 
 	}
 }
+
+func ErrorJson403(err string,c *gin.Context,){
+	c.JSON(http.StatusForbidden,gin.H{
+		"code" : http.StatusForbidden,
+		"msg" : err,
+	})
+}
