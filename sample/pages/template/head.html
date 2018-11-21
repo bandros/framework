@@ -1,0 +1,20 @@
+{{- define "template/head"}}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>{{- .title}}</title>
+    <link href="/asset/img/favicon.png" rel="shortcut icon">
+    {{/*<link href="/asset/plugin/perfect-scrollbar/css/perfect-scrollbar.css" rel="stylesheet" />*/}}
+    <link href="/asset/css/main.min.css" rel="stylesheet" />
+{{- range $i, $v := .css }}
+    <link href="{{$v}}.css" rel="stylesheet" />
+{{- end }}
+
+{{- range $i, $v := .js_header }}
+    <script src="{{$v}}.js" ></script>
+{{- end }}
+</head>
+<body>
+{{end}}

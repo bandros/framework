@@ -1,0 +1,7 @@
+{{- define "template/foot"}}
+{{- range $i, $v := .css_footer }}
+    <link href="{{$v}}.css" rel="stylesheet" />
+{{- end }}
+</body>
+</html>
+{{- end}}
