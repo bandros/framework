@@ -27,16 +27,20 @@ func AuthDb(c *gin.Context)  {
 	router =  []map[string]interface{}{}
 	id_user := token[Config("idUserAuth")]
 	db := Database{}
-	db.Select("au.link router").
+	db.Select("at.link router").
 		From("auth_router at").
 		Join("auth_user au","at.id=au.id_router","left").
 		Where("au.id_user",id_user)
 	router,_ = db.Result()
+	fmt.Println("DB",db.QueryView())
 
 	show := false
 	url := c.Request.URL.Path
+	fmt.Println("router :",router)
+	fmt.Println("url :",url)
 	for _,v := range router {
 		pattern := v["router"].(string)
+		fmt.Println("router :",pattern)
 		pattern = strings.Replace(pattern,"*","(.*)",-1)
 		if r,_:=regexp.MatchString("^"+pattern+"$", url);r  {
 			show = true
