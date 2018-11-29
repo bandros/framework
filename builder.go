@@ -404,6 +404,60 @@ func (sql *Database) Update(query map[string]interface{}) error {
 	return UpdateProses(sql, value)
 }
 
+func (sql *Database) UpdateBatch(query []map[string]interface{},id string) error {
+	id = strings.TrimSpace(id)
+	if sql.from == "" {
+		return errors.New("nothing table selected")
+	}
+
+	if query == nil {
+		return errors.New("query invalid")
+	}
+	querySql := "UPDATE " + sql.from + " SET "
+	var set map[string][]string
+	set = map[string][]string{}
+	value := []interface{}{}
+	whereIn := []string{}
+	for i, v := range query {
+		if v[id] == nil {
+			return errors.New("primary key for update, not found")
+		}
+		var reflectValue = reflect.ValueOf(v[id])
+		var valId string
+		var idInt int
+		switch reflectValue.Kind() {
+		case reflect.String:
+			valId = strings.TrimSpace(reflectValue.String())
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			idInt = int(reflectValue.Uint())
+			valId = strconv.Itoa(idInt)
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			idInt = int(reflectValue.Int())
+			valId = strconv.Itoa(idInt)
+		}
+		whereIn = append(whereIn,"'"+valId+"'")
+
+		for i2,v2 := range v {
+			if i2 == id {
+				continue
+			}
+			if i == 0 {
+				set[i2] = append(set[i2],i2+" = (CASE "+id+"\n")
+			}
+			set[i2] = append(set[i2],"WHEN "+valId+" THEN ?\n")
+			value = append(value, v2)
+		}
+	}
+	for _,v := range set {
+		querySql += strings.Join(v, "") +" END),\n"
+	}
+	querySql = strings.TrimRight(querySql,",\n")
+	querySql += "where "+id+" in("+strings.Join(whereIn,",")+")"
+	sql.query = querySql
+
+	return UpdateProses(sql, value)
+}
+
 func UpdateProses(sql *Database, value []interface{}) error {
 	var err error
 	var stmt *Stmt

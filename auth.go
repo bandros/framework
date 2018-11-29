@@ -165,4 +165,3 @@ func getAllow(allow []interface{},url string) bool {
 	}
 	return show
 }
-
