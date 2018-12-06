@@ -10,35 +10,35 @@ import (
 )
 
 type Api struct {
-	Url string
-	Data map[string]string
-	Header map[string]string
+	Url         string
+	Data        map[string]string
+	Header      map[string]string
 	ContentType string
-	body string
+	body        string
 }
 
-func(api *Api) Do(method string)  error{
+func (api *Api) Do(method string) error {
 	method = strings.ToUpper(method)
 	client := &http.Client{}
 	var err error
 	var req *http.Request
 	if method == "POST" {
 		param := url.Values{}
-		for i,v := range api.Data {
-			param.Set(i,v)
+		for i, v := range api.Data {
+			param.Set(i, v)
 		}
 		req, err = http.NewRequest(method, api.Url, bytes.NewBufferString(param.Encode()))
 		if err != nil {
 			return err
 		}
-	}else{
+	} else {
 		req, err = http.NewRequest("GET", api.Url, nil)
 		if err != nil {
 			return err
 		}
 		param := req.URL.Query()
-		for i,v := range api.Data {
-			param.Set(i,v)
+		for i, v := range api.Data {
+			param.Set(i, v)
 		}
 		req.URL.RawQuery = param.Encode()
 	}
@@ -49,11 +49,11 @@ func(api *Api) Do(method string)  error{
 	}
 	if api.ContentType == "" {
 		api.Header["Content-Type"] = "application/x-www-form-urlencoded"
-	}else{
+	} else {
 		api.Header["Content-Type"] = api.ContentType
 	}
-	for i,v := range api.Header {
-		req.Header.Set(i,v)
+	for i, v := range api.Header {
+		req.Header.Set(i, v)
 	}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -68,7 +68,7 @@ func(api *Api) Do(method string)  error{
 	return nil
 }
 
-func(api *Api) Get(data interface{}) (error){
+func (api *Api) Get(data interface{}) error {
 	err := json.Unmarshal([]byte(api.body), &data)
 	if err != nil {
 		return err
@@ -76,6 +76,6 @@ func(api *Api) Get(data interface{}) (error){
 	return nil
 }
 
-func(api *Api) GetRaw() (string){
+func (api *Api) GetRaw() string {
 	return api.body
 }

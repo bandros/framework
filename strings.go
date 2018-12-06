@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func RemoveSpecialChar(char string)  string{
+func RemoveSpecialChar(char string) string {
 	reg, err := regexp.Compile("[^a-z -Z_]+")
 	if err != nil {
 		return ""
@@ -15,7 +15,7 @@ func RemoveSpecialChar(char string)  string{
 	return str
 }
 
-func AddSlash(char string)  string{
+func AddSlash(char string) string {
 	str := strings.Replace(char, "'", "\\'", -1)
 	str = strings.Replace(char, "\"", "\\\"", -1)
 	return str

@@ -46,9 +46,9 @@ func whereProccess(field string, value interface{}) string {
 	row := fields[0]
 	op := "="
 	var where string
-	if (len(fields) > 2) {
+	if len(fields) > 2 {
 		op = fields[1] + " " + fields[2]
-	} else if (len(fields) > 1) {
+	} else if len(fields) > 1 {
 		op = fields[1]
 	}
 	var reflectValue = reflect.ValueOf(value)
@@ -164,7 +164,7 @@ func (sql *Database) Limit(limit int, start int) *Database {
 	return sql
 }
 
-func(sql *Database) Having(str string) *Database {
+func (sql *Database) Having(str string) *Database {
 	sql.having = str
 	return sql
 }
@@ -172,7 +172,7 @@ func(sql *Database) Having(str string) *Database {
 func whereBuild(sql *Database) {
 
 	sql.whereResult = ""
-	opShow := true;
+	opShow := true
 	for i, v := range sql.where {
 		if i == 0 {
 			opShow = false
@@ -267,7 +267,7 @@ func (sql *Database) Result() ([]map[string]interface{}, error) {
 			var v interface{}
 			val := values[i]
 			b, ok := val.([]byte)
-			if (ok) {
+			if ok {
 				v = string(b)
 			} else {
 				v = val
@@ -294,7 +294,7 @@ func (sql *Database) Row() (map[string]interface{}, error) {
 		return nil, err
 	}
 
-	if (len(db) >= 1) {
+	if len(db) >= 1 {
 		return db[0], nil
 	}
 	return nil, nil
@@ -314,7 +314,7 @@ func insert(querySql string, value []interface{}, sql *Database) (interface{}, e
 	sql.query = querySql
 	if sql.transatction != nil {
 		stmt, err = sql.transatction.Prepare(querySql)
-	}else{
+	} else {
 		stmt, err = sql.DB.Prepare(querySql)
 	}
 
@@ -404,7 +404,7 @@ func (sql *Database) Update(query map[string]interface{}) error {
 	return UpdateProses(sql, value)
 }
 
-func (sql *Database) UpdateBatch(query []map[string]interface{},id string) error {
+func (sql *Database) UpdateBatch(query []map[string]interface{}, id string) error {
 	id = strings.TrimSpace(id)
 	if sql.from == "" {
 		return errors.New("nothing table selected")
@@ -435,24 +435,24 @@ func (sql *Database) UpdateBatch(query []map[string]interface{},id string) error
 			idInt = int(reflectValue.Int())
 			valId = strconv.Itoa(idInt)
 		}
-		whereIn = append(whereIn,"'"+valId+"'")
+		whereIn = append(whereIn, "'"+valId+"'")
 
-		for i2,v2 := range v {
+		for i2, v2 := range v {
 			if i2 == id {
 				continue
 			}
 			if i == 0 {
-				set[i2] = append(set[i2],i2+" = (CASE "+id+"\n")
+				set[i2] = append(set[i2], i2+" = (CASE "+id+"\n")
 			}
-			set[i2] = append(set[i2],"WHEN "+valId+" THEN ?\n")
+			set[i2] = append(set[i2], "WHEN "+valId+" THEN ?\n")
 			value = append(value, v2)
 		}
 	}
-	for _,v := range set {
-		querySql += strings.Join(v, "") +" END),\n"
+	for _, v := range set {
+		querySql += strings.Join(v, "") + " END),\n"
 	}
-	querySql = strings.TrimRight(querySql,",\n")
-	querySql += "where "+id+" in("+strings.Join(whereIn,",")+")"
+	querySql = strings.TrimRight(querySql, ",\n")
+	querySql += "where " + id + " in(" + strings.Join(whereIn, ",") + ")"
 	sql.query = querySql
 
 	return UpdateProses(sql, value)
@@ -469,7 +469,7 @@ func UpdateProses(sql *Database, value []interface{}) error {
 	}
 	if sql.transatction != nil {
 		stmt, err = sql.transatction.Prepare(sql.query)
-	}else{
+	} else {
 		stmt, err = sql.DB.Prepare(sql.query)
 	}
 	sql.stmt = stmt
@@ -506,7 +506,7 @@ func (sql *Database) Delete() error {
 	}
 	if sql.transatction != nil {
 		_, err = sql.transatction.Exec(sql.query)
-	}else{
+	} else {
 		_, err = sql.DB.Exec(sql.query)
 	}
 
@@ -538,9 +538,9 @@ func (sql *Database) QueryView() string {
 }
 
 func (sql *Database) Transaction() error {
-	tx,err := sql.DB.Begin()
+	tx, err := sql.DB.Begin()
 	sql.transatction = tx
-	return  err
+	return err
 }
 
 func (sql *Database) Rollback() error {
@@ -549,7 +549,7 @@ func (sql *Database) Rollback() error {
 		err = sql.transatction.Rollback()
 	}
 	sql.transatction = nil
-	return  err
+	return err
 }
 
 func (sql *Database) Commit() error {
@@ -558,5 +558,5 @@ func (sql *Database) Commit() error {
 		err = sql.transatction.Commit()
 	}
 	sql.transatction = nil
-	return  err
+	return err
 }
