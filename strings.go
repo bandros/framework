@@ -1,12 +1,14 @@
 package framework
 
 import (
+	"bytes"
 	"regexp"
 	"strings"
 )
 
 func RemoveSpecialChar(char string) string {
-	reg, err := regexp.Compile("[^a-z -Z_]+")
+	char = string(bytes.Trim([]byte(char), "\xef\xbb\xbf"))
+	reg, err := regexp.Compile("[^ -~]+")
 	if err != nil {
 		return ""
 	}
