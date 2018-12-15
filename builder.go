@@ -27,6 +27,7 @@ type Database struct {
 	Option       string
 	BeforeOption string
 	transatction *Tx
+	removeSpecialChar bool
 }
 
 func (sql *Database) Select(value string) *Database {
@@ -37,6 +38,11 @@ func (sql *Database) Select(value string) *Database {
 func (sql *Database) From(value string) *Database {
 	sql.call = false
 	sql.from = value
+	sql.removeSpecialChar = true
+	return sql
+}
+func (sql *Database) RemoveSpecialChar(value bool) *Database {
+	sql.removeSpecialChar = value
 	return sql
 }
 
@@ -344,7 +350,11 @@ func (sql *Database) Insert(query map[string]interface{}) (interface{}, error) {
 	for i, v := range query {
 		tag += "?,"
 		field += i + ","
+		if sql.removeSpecialChar{
+			v = RemoveSpecialChar(v.(string))
+		}
 		value = append(value, v)
+
 	}
 	tag = tag[0 : len(tag)-1]
 	field = field[0 : len(field)-1]
@@ -369,6 +379,9 @@ func (sql *Database) InsertBatch(query []map[string]interface{}) (interface{}, e
 	tags = tags[0 : len(tags)-1]
 	for _, v := range query {
 		for _, v2 := range fieldArray {
+			if sql.removeSpecialChar{
+				v[v2] = RemoveSpecialChar(v[v2].(string))
+			}
 			value = append(value, v[v2])
 		}
 	}
@@ -392,6 +405,9 @@ func (sql *Database) Update(query map[string]interface{}) error {
 	value := []interface{}{}
 	for i, v := range query {
 		set = append(set, i+"=?")
+		if sql.removeSpecialChar {
+			v = RemoveSpecialChar(v.(string))
+		}
 		value = append(value, v)
 	}
 
@@ -445,6 +461,9 @@ func (sql *Database) UpdateBatch(query []map[string]interface{}, id string) erro
 				set[i2] = append(set[i2], i2+" = (CASE "+id+"\n")
 			}
 			set[i2] = append(set[i2], "WHEN "+valId+" THEN ?\n")
+			if sql.removeSpecialChar {
+				v2 = RemoveSpecialChar(v2.(string))
+			}
 			value = append(value, v2)
 		}
 	}
