@@ -14,8 +14,10 @@ import (
 
 type Image struct {
 	img       image.Image
+	imgMulti       []image.Image
 	ext       string
 	file      *multipart.FileHeader
+	fileMulti      []*multipart.FileHeader
 	Encrypt   bool
 	Width     int
 	Height    int
@@ -43,6 +45,25 @@ func (img *Image) Set(file *multipart.FileHeader) error {
 	img.file = file
 	return nil
 }
+
+func (img *Image) SetMulti(files []*multipart.FileHeader) error {
+	img.Encrypt = false
+	for _,file := range files {
+		f, err := file.Open()
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		src, err := imaging.Decode(f)
+		if err != nil {
+			return err
+		}
+		img.imgMulti = append(img.imgMulti,src)
+	}
+	img.fileMulti = files
+	return nil
+}
+
 
 func (img *Image) ResizeSave(location string) (Filename, error) {
 	var f Filename
@@ -123,6 +144,41 @@ func (img *Image) ResizeMultiUpload(bucket string, size map[string]uint) (Filena
 	}
 	return f, nil
 }
+
+
+func (img *Image) MultiUploadGoogleStorage(bucket string) ([]Filename, error) {
+	var f []Filename
+
+	ctx := context.Background()
+	client, err := storage.NewClient(ctx)
+	if err != nil {
+		return []Filename{}, err
+	}
+	for _,file := range img.imgMulti {
+		var fTemp Filename
+		fTemp.Dir = "https://s1.tss.my.id/" + bucket + "/"
+		if img.Directory != "" {
+			fTemp.Dir += img.Directory + "/"
+		}
+		filename := unix() + ".png"
+		fTemp.Filename = filename
+		fTemp.Fullpath = fTemp.Dir + fTemp.Filename
+
+		file = imaging.Resize(file, img.Width, img.Height, imaging.Lanczos)
+		wc := client.Bucket(bucket).Object(fTemp.Filename).NewWriter(ctx)
+		wc.CacheControl = "public, max-age=86400"
+		err = imaging.Encode(wc, file, imaging.PNG)
+		if err != nil {
+			return []Filename{}, err
+		}
+		if err = wc.Close(); err != nil {
+			return []Filename{}, err
+		}
+		f = append(f,fTemp)
+	}
+	return f, nil
+}
+
 
 func unix() string {
 	t := strconv.Itoa(int(time.Now().UnixNano()))
