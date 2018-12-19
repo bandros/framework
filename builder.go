@@ -351,7 +351,7 @@ func (sql *Database) Insert(query map[string]interface{}) (interface{}, error) {
 		tag += "?,"
 		field += i + ","
 		if sql.removeSpecialChar{
-			v = RemoveSpecialChar(v.(string))
+			v = RemoveSpecialChar(v)
 		}
 		value = append(value, v)
 
@@ -380,7 +380,7 @@ func (sql *Database) InsertBatch(query []map[string]interface{}) (interface{}, e
 	for _, v := range query {
 		for _, v2 := range fieldArray {
 			if sql.removeSpecialChar{
-				v[v2] = RemoveSpecialChar(v[v2].(string))
+				v[v2] = RemoveSpecialChar(v[v2])
 			}
 			value = append(value, v[v2])
 		}
@@ -406,7 +406,7 @@ func (sql *Database) Update(query map[string]interface{}) error {
 	for i, v := range query {
 		set = append(set, i+"=?")
 		if sql.removeSpecialChar {
-			v = RemoveSpecialChar(v.(string))
+			v = RemoveSpecialChar(v)
 		}
 		value = append(value, v)
 	}
@@ -462,7 +462,7 @@ func (sql *Database) UpdateBatch(query []map[string]interface{}, id string) erro
 			}
 			set[i2] = append(set[i2], "WHEN "+valId+" THEN ?\n")
 			if sql.removeSpecialChar {
-				v2 = RemoveSpecialChar(v2.(string))
+				v2 = RemoveSpecialChar(v2)
 			}
 			value = append(value, v2)
 		}

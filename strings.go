@@ -2,17 +2,32 @@ package framework
 
 import (
 	"bytes"
+	"reflect"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
-func RemoveSpecialChar(char string) string {
-	char = string(bytes.Trim([]byte(char), "\xef\xbb\xbf"))
+func RemoveSpecialChar(char interface{}) interface{} {
+	var reflectValue = reflect.ValueOf(char)
+	var val string
+	var i int
+	switch reflectValue.Kind() {
+	case reflect.String:
+		val = strings.TrimSpace(reflectValue.String())
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		i = int(reflectValue.Uint())
+		val = strconv.Itoa(i)
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		i = int(reflectValue.Int())
+		val = strconv.Itoa(i)
+	}
+	val = string(bytes.Trim([]byte(val), "\xef\xbb\xbf"))
 	reg, err := regexp.Compile("[^ -~]+")
 	if err != nil {
 		return ""
 	}
-	str := reg.ReplaceAllString(char, "")
+	str := reg.ReplaceAllString(val, "")
 	str = AddSlash(str)
 	return str
 }
