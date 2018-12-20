@@ -62,7 +62,10 @@ func Config(key string) string {
 
 func ReloadConfig() {
 	var cfg ConfigNew
-	file, _ := ioutil.ReadFile("config.yml")
+	file, err := ioutil.ReadFile("config.yml")
+	if err != nil {
+		file, _ = ioutil.ReadFile("config.yaml")
+	}
 	yaml.Unmarshal(file, &cfg)
 	for i, v := range cfg.Config[0] {
 		os.Setenv(i, v)
