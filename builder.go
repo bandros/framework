@@ -432,7 +432,9 @@ func (sql *Database) UpdateBatch(query []map[string]interface{}, id string) erro
 	querySql := "UPDATE " + sql.from + " SET "
 	var set map[string][]string
 	set = map[string][]string{}
-	value := []interface{}{}
+	var value map[string][]interface{}
+	value = map[string][]interface{}{}
+	values := []interface{}{}
 	whereIn := []string{}
 	for i, v := range query {
 		if v[id] == nil {
@@ -464,17 +466,21 @@ func (sql *Database) UpdateBatch(query []map[string]interface{}, id string) erro
 			if sql.removeSpecialChar {
 				v2 = RemoveSpecialChar(v2)
 			}
-			value = append(value, v2)
+			value[i2] = append(value[i2], v2)
 		}
 	}
-	for _, v := range set {
+	for i, v := range set {
 		querySql += strings.Join(v, "") + " END),\n"
+		for _,v2 := range value[i]{
+			values = append(values,v2)
+		}
+
 	}
 	querySql = strings.TrimRight(querySql, ",\n")
 	querySql += "where " + id + " in(" + strings.Join(whereIn, ",") + ")"
 	sql.query = querySql
 
-	return UpdateProses(sql, value)
+	return UpdateProses(sql, values)
 }
 
 func UpdateProses(sql *Database, value []interface{}) error {

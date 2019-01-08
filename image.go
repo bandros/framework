@@ -179,6 +179,19 @@ func (img *Image) MultiUploadGoogleStorage(bucket string) ([]Filename, error) {
 	return f, nil
 }
 
+func RemoveGoogleStorage(bucket,file string) error{
+	ctx := context.Background()
+	client, err := storage.NewClient(ctx)
+	if err != nil {
+		return  err
+	}
+	o := client.Bucket(bucket).Object(file)
+	if err := o.Delete(ctx); err != nil {
+		return err
+	}
+	return nil
+}
+
 
 func unix() string {
 	t := strconv.Itoa(int(time.Now().UnixNano()))
