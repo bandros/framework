@@ -3,7 +3,6 @@ package framework
 import (
 	. "database/sql"
 	"errors"
-	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
@@ -502,11 +501,11 @@ func UpdateProses(sql *Database, value []interface{}) error {
 		return err
 	}
 	//defer stmt.Close()
-	res, err := stmt.Exec(value...)
+	_, err = stmt.Exec(value...)
 	if err != nil {
 		return err
 	}
-	fmt.Println(res)
+	//fmt.Println(res)
 
 	return nil
 }
