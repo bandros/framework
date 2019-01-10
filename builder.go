@@ -461,7 +461,7 @@ func (sql *Database) UpdateBatch(query []map[string]interface{}, id string) erro
 			if i == 0 {
 				set[i2] = append(set[i2], i2+" = (CASE "+id+"\n")
 			}
-			set[i2] = append(set[i2], "WHEN "+valId+" THEN ?\n")
+			set[i2] = append(set[i2], "WHEN '"+valId+"' THEN ?\n")
 			if sql.removeSpecialChar {
 				v2 = RemoveSpecialChar(v2)
 			}
