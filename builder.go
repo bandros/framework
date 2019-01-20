@@ -63,7 +63,11 @@ func whereProccess(field string, value interface{}) string {
 	switch reflectValue.Kind() {
 	case reflect.String:
 		val = strings.TrimSpace(reflectValue.String())
-		where = row + " " + op + " '" + val + "'"
+		if op == "sql" {
+			where = row + " " + op + " " + val
+		}else{
+			where = row + " " + op + " '" + val + "'"
+		}
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		i = int(reflectValue.Uint())
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
