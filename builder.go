@@ -63,10 +63,11 @@ func whereProccess(field string, value interface{}) string {
 	switch reflectValue.Kind() {
 	case reflect.String:
 		val = strings.TrimSpace(reflectValue.String())
-		if op == "sql" {
-			where = row + " " + op + " " + val
-		}else{
-			where = row + " " + op + " '" + val + "'"
+		switch(op) {
+			case "sql" : where = row + "=" + val
+			case "raw" : where = val
+			default: where = row + " " + op + " '" + val + "'"
+
 		}
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		i = int(reflectValue.Uint())
@@ -94,7 +95,13 @@ func (sql *Database) WhereOr(field string, value interface{}) *Database {
 	sql.where = append(sql.where, where)
 	return sql
 }
-
+func (sql *Database) WhereRaw(raw string) *Database {
+	where := map[string]string{}
+	where["op"] = "raw"
+	where["value"] = whereProccess("", raw)
+	sql.where = append(sql.where, where)
+	return sql
+}
 func (sql *Database) StartGroup(op string) *Database {
 	op = strings.ToUpper(op)
 	if op != "AND" || op != "OR" {
