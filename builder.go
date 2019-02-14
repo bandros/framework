@@ -66,7 +66,7 @@ func whereProccess(field string, value interface{}) string {
 		switch(op) {
 			case "sql" : where = row + "=" + val
 			case "raw" : where = val
-			default: where = row + " " + op + " '" + val + "'"
+			default: where = row + " " + op + " '" + RemoveSpecialChar(val).(string) + "'"
 
 		}
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
@@ -92,13 +92,6 @@ func (sql *Database) WhereOr(field string, value interface{}) *Database {
 	where := map[string]string{}
 	where["op"] = "OR"
 	where["value"] = whereProccess(field, value)
-	sql.where = append(sql.where, where)
-	return sql
-}
-func (sql *Database) WhereRaw(raw string) *Database {
-	where := map[string]string{}
-	where["op"] = "raw"
-	where["value"] = whereProccess("", raw)
 	sql.where = append(sql.where, where)
 	return sql
 }

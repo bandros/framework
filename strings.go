@@ -33,8 +33,8 @@ func RemoveSpecialChar(char interface{}) interface{} {
 }
 
 func AddSlash(char string) string {
-	str := strings.Replace(char, "'", "\\'", -1)
-	str = strings.Replace(char, "\"", "\\\"", -1)
+	var str = strings.Replace(char, "'", "\\'", -1)
+	str = strings.Replace(str, "\"", "\\\"", -1)
 	return str
 }
 
