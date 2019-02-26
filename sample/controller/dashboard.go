@@ -7,6 +7,6 @@ import (
 
 func Dashboard(c *gin.Context) {
 	c.HTML(http.StatusOK, "dashboard/index", gin.H{
-		"title":   "Bandros Framework",
+		"title": "Bandros Framework",
 	})
 }

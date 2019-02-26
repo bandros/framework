@@ -14,7 +14,6 @@ func Init(r *gin.Engine) {
 	r.NoRoute(error404)
 	r.NoMethod(error404)
 
-
 	r.GET("/", controller.Dashboard)
 
 }

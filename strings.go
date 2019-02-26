@@ -38,10 +38,10 @@ func AddSlash(char string) string {
 	return str
 }
 
-func NumberPhone(number string)  string{
-	reg,_ := regexp.Compile("[^0-9]+")
+func NumberPhone(number string) string {
+	reg, _ := regexp.Compile("[^0-9]+")
 	number = reg.ReplaceAllString(number, "")
-	reg,_ = regexp.Compile("^(08|8)")
+	reg, _ = regexp.Compile("^(08|8)")
 	number = reg.ReplaceAllString(number, "628")
 	return number
 }

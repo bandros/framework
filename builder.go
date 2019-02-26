@@ -9,23 +9,23 @@ import (
 )
 
 type Database struct {
-	sel          string
-	from         string
-	where        []map[string]string
-	whereResult  string
-	join         string
-	groupBy      string
-	having       string
-	orderBy      []string
-	limit        string
-	query        string
-	call         bool
-	DB           *DB
-	row          *Rows
-	stmt         *Stmt
-	Option       string
-	BeforeOption string
-	transatction *Tx
+	sel               string
+	from              string
+	where             []map[string]string
+	whereResult       string
+	join              string
+	groupBy           string
+	having            string
+	orderBy           []string
+	limit             string
+	query             string
+	call              bool
+	DB                *DB
+	row               *Rows
+	stmt              *Stmt
+	Option            string
+	BeforeOption      string
+	transatction      *Tx
 	removeSpecialChar bool
 }
 
@@ -63,10 +63,13 @@ func whereProccess(field string, value interface{}) string {
 	switch reflectValue.Kind() {
 	case reflect.String:
 		val = strings.TrimSpace(reflectValue.String())
-		switch(op) {
-			case "sql" : where = row + "=" + val
-			case "raw" : where = val
-			default: where = row + " " + op + " '" + RemoveSpecialChar(val).(string) + "'"
+		switch op {
+		case "sql":
+			where = row + "=" + val
+		case "raw":
+			where = val
+		default:
+			where = row + " " + op + " '" + RemoveSpecialChar(val).(string) + "'"
 
 		}
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
@@ -353,7 +356,7 @@ func (sql *Database) Insert(query map[string]interface{}) (interface{}, error) {
 	for i, v := range query {
 		tag += "?,"
 		field += i + ","
-		if sql.removeSpecialChar{
+		if sql.removeSpecialChar {
 			v = RemoveSpecialChar(v)
 		}
 		value = append(value, v)
@@ -382,7 +385,7 @@ func (sql *Database) InsertBatch(query []map[string]interface{}) (interface{}, e
 	tags = tags[0 : len(tags)-1]
 	for _, v := range query {
 		for _, v2 := range fieldArray {
-			if sql.removeSpecialChar{
+			if sql.removeSpecialChar {
 				v[v2] = RemoveSpecialChar(v[v2])
 			}
 			value = append(value, v[v2])
@@ -474,8 +477,8 @@ func (sql *Database) UpdateBatch(query []map[string]interface{}, id string) erro
 	}
 	for i, v := range set {
 		querySql += strings.Join(v, "") + " END),\n"
-		for _,v2 := range value[i]{
-			values = append(values,v2)
+		for _, v2 := range value[i] {
+			values = append(values, v2)
 		}
 
 	}
@@ -566,6 +569,13 @@ func (sql *Database) QueryView() string {
 }
 
 func (sql *Database) Transaction() error {
+	var err error
+	if sql.DB == nil {
+		sql.DB, err = MysqlConnect()
+		if err != nil {
+			return err
+		}
+	}
 	tx, err := sql.DB.Begin()
 	sql.transatction = tx
 	return err
