@@ -1,6 +1,8 @@
 package framework
 
 import (
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
@@ -21,6 +23,8 @@ func (r *Init) Get() {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	r.Begin = gin.Default()
+	store := cookie.NewStore([]byte(Config("sessionKey")))
+	r.Begin.Use(sessions.Sessions(Config("sessionName"), store))
 }
 
 func (r *Init) Run() {
