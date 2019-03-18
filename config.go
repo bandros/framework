@@ -21,8 +21,10 @@ func (r *Init) Get() {
 	ReloadConfig()
 	if Config("env") != "dev" {
 		gin.SetMode(gin.ReleaseMode)
+		r.Begin = gin.New()
+	}else{
+		r.Begin = gin.Default()
 	}
-	r.Begin = gin.Default()
 	store := cookie.NewStore([]byte(Config("sessionKey")))
 	r.Begin.Use(sessions.Sessions(Config("sessionName"), store))
 }
