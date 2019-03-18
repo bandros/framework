@@ -22,7 +22,7 @@ func (r *Init) Get() {
 	if Config("env") != "dev" {
 		gin.SetMode(gin.ReleaseMode)
 		r.Begin = gin.New()
-	}else{
+	} else {
 		r.Begin = gin.Default()
 	}
 	store := cookie.NewStore([]byte(Config("sessionKey")))
@@ -41,7 +41,7 @@ func ReloadConfig() {
 	var cfg ConfigNew
 	file, err := ioutil.ReadFile("config.yml")
 	if err != nil {
-		file,err = ioutil.ReadFile("config.yaml")
+		file, err = ioutil.ReadFile("config.yaml")
 		if err != nil {
 			panic(err.Error())
 		}
