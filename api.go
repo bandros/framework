@@ -40,6 +40,15 @@ func (api *Api) Do(method string) error {
 					var index = i+"[]"
 					param.Add(index,v2)
 				}
+
+			case reflect.Map:
+				if reflect.TypeOf(v).String() != "map[string]string" {
+					return  errors.New("map only support map[string]string type")
+				}
+				for i2,v2 := range v.(map[string]string){
+					var index = i+"["+i2+"]"
+					param.Add(index,v2)
+				}
 			case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 				var str = strconv.Itoa(int(reflectValue.Uint()))
 				param.Set(i, str)
