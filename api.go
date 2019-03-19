@@ -3,15 +3,18 @@ package framework
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"reflect"
+	"strconv"
 	"strings"
 )
 
 type Api struct {
 	Url         string
-	Data        map[string]string
+	Data        map[string]interface{}
 	Header      map[string]string
 	ContentType string
 	body        string
@@ -25,7 +28,27 @@ func (api *Api) Do(method string) error {
 	if method == "POST" {
 		param := url.Values{}
 		for i, v := range api.Data {
-			param.Set(i, v)
+			var reflectValue = reflect.ValueOf(v)
+			switch reflectValue.Kind() {
+			case reflect.String:
+				param.Set(i, v.(string))
+			case reflect.Slice:
+				if reflect.TypeOf(v).String() != "[]string" {
+					return  errors.New("slice only support []string type")
+				}
+				for _,v2 := range v.([]string){
+					var index = i+"[]"
+					param.Add(index,v2)
+				}
+			case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+				var str = strconv.Itoa(int(reflectValue.Uint()))
+				param.Set(i, str)
+			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+				var str = strconv.Itoa(int(reflectValue.Int()))
+				param.Set(i, str)
+			default:
+				return errors.New(reflectValue.String() +" Not support")
+			}
 		}
 		req, err = http.NewRequest(method, api.Url, bytes.NewBufferString(param.Encode()))
 		if err != nil {
@@ -38,7 +61,10 @@ func (api *Api) Do(method string) error {
 		}
 		param := req.URL.Query()
 		for i, v := range api.Data {
-			param.Set(i, v)
+			if reflect.TypeOf(v).String() != "string" {
+				return  errors.New("only support string type")
+			}
+			param.Set(i, v.(string))
 		}
 		req.URL.RawQuery = param.Encode()
 	}
