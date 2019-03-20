@@ -256,12 +256,12 @@ func (sql *Database) Result() ([]map[string]interface{}, error) {
 		}
 	}
 	//defer sql.DB.Close()
-	if sql.transatction != nil {
-		rows, err = sql.transatction.Query(query)
-	}else{
-		rows, err = sql.DB.Query(query)
-	}
-	//rows, err := sql.DB.Query(query)
+	//if sql.transatction != nil {
+	//	rows, err = sql.transatction.Query(query)
+	//}else{
+	//	rows, err = sql.DB.Query(query)
+	//}
+	rows, err = sql.DB.Query(query)
 	sql.row = rows
 	if err != nil {
 		return nil, err
