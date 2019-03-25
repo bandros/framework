@@ -279,7 +279,7 @@ func (sql *Database) Result() ([]map[string]interface{}, error) {
 		for i, _ := range columns {
 			valuePtrs[i] = &values[i]
 		}
-		rows.Scan(valuePtrs...)
+		rows.Scan(valuePtrsg)
 		data := map[string]interface{}{}
 		for i, col := range columns {
 			var v interface{}
