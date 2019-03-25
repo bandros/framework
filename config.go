@@ -39,12 +39,18 @@ func Config(key string) string {
 
 func ReloadConfig() {
 	var cfg ConfigNew
-	file, err := ioutil.ReadFile("config.yml")
-	if err != nil {
-		file, err = ioutil.ReadFile("config.yaml")
-		if err != nil {
-			panic(err.Error())
+	var fileName = "config.yml"
+	var exist = FileExist(fileName)
+	if !exist{
+		fileName = "config.yaml"
+		exist = FileExist(fileName)
+		if !exist{
+			panic("config.yaml or config.yml doesn't exist")
 		}
+	}
+	file, err := ioutil.ReadFile(fileName)
+	if err != nil {
+		panic(err.Error())
 	}
 	yaml.Unmarshal(file, &cfg)
 	if len(cfg.Config) >= 1 {
