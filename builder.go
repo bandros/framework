@@ -65,7 +65,7 @@ func whereProccess(field string, value interface{}) string {
 		val = strings.TrimSpace(reflectValue.String())
 		switch op {
 		case "sql":
-			where = row + "=" + val
+			where = row + val
 		case "raw":
 			where = val
 		default:
