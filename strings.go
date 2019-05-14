@@ -2,6 +2,7 @@ package framework
 
 import (
 	"bytes"
+	"html"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -29,6 +30,7 @@ func RemoveSpecialChar(char interface{}) interface{} {
 	}
 	str := reg.ReplaceAllString(val, "")
 	str = AddSlash(str)
+	str = html.EscapeString(str)
 	return str
 }
 
