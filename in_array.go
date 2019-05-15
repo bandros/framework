@@ -17,3 +17,13 @@ func InArray(slice interface{}, item interface{}) bool {
 
 	return false
 }
+
+func InMap(mapData []map[string]interface{}, key string, item interface{}) bool {
+	for _, v := range mapData {
+		if v[key] == item {
+			return true
+		}
+	}
+
+	return false
+}
