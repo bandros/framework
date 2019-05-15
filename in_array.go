@@ -18,7 +18,7 @@ func InArray(slice interface{}, item interface{}) bool {
 	return false
 }
 
-func InMapIndex(mapData []map[string]interface{}, key string, item interface{}) (bool, index) {
+func InMapIndex(mapData []map[string]interface{}, key string, item interface{}) (bool, int) {
 	for i, v := range mapData {
 		if v[key] == item {
 			return true, i
