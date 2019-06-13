@@ -244,7 +244,10 @@ func get(sql *Database) {
 }
 
 func (sql *Database) Call(procedure string, value []string) *Database {
-	values := "('" + strings.Join(value, "','") + "')"
+	var values = ""
+	if len(value) != 0 {
+		values = "('" + strings.Join(value, "','") + "')"
+	}
 	sql.query = "call " + procedure + " " + values
 	sql.call = true
 	return sql
