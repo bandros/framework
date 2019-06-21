@@ -581,8 +581,10 @@ func (sql *Database) Close() {
 }
 
 func (sql *Database) Clear() {
+	var tx = sql.transatction
 	p := reflect.ValueOf(sql).Elem()
 	p.Set(reflect.Zero(p.Type()))
+	sql.transatction = tx
 }
 
 func (sql *Database) QueryView() string {
