@@ -313,10 +313,6 @@ func (sql *Database) Result() ([]map[string]interface{}, error) {
 		}
 		result = append(result, data)
 	}
-	err = rows.Close()
-	if err != nil {
-		return nil, err
-	}
 
 	return result, nil
 
@@ -365,10 +361,6 @@ func insert(querySql string, value []interface{}, sql *Database) (interface{}, e
 		return nil, err
 	}
 	id, err := res.LastInsertId()
-	if err != nil {
-		return nil, err
-	}
-	err = stmt.Close()
 	if err != nil {
 		return nil, err
 	}
@@ -541,8 +533,6 @@ func UpdateProses(sql *Database, value []interface{}) error {
 	if err != nil {
 		return err
 	}
-	//fmt.Println(res)
-	stmt.Close()
 	return nil
 }
 
@@ -576,7 +566,15 @@ func (sql *Database) Delete() error {
 	return nil
 }
 func (sql *Database) Close() {
-	sql.DB.Close()
+	if sql.row != nil {
+		sql.row.Close()
+	}
+	if sql.stmt != nil {
+		sql.stmt.Close()
+	}
+	if sql.DB != nil {
+		sql.DB.Close()
+	}
 }
 
 func (sql *Database) Clear() {
