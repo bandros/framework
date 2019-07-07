@@ -580,6 +580,12 @@ func (sql *Database) Close() {
 func (sql *Database) Clear() {
 	var tx = sql.transatction
 	var db = sql.DB
+	if sql.row != nil {
+		sql.row.Close()
+	}
+	if sql.stmt != nil {
+		sql.stmt.Close()
+	}
 	p := reflect.ValueOf(sql).Elem()
 	p.Set(reflect.Zero(p.Type()))
 	sql.transatction = tx
