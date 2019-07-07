@@ -246,6 +246,11 @@ func get(sql *Database) {
 func (sql *Database) Call(procedure string, value []string) *Database {
 	var values = ""
 	if len(value) != 0 {
+		if sql.removeSpecialChar {
+			for i, v := range value {
+				value[i] = RemoveSpecialChar(v).(string)
+			}
+		}
 		values = "('" + strings.Join(value, "','") + "')"
 	}
 	sql.query = "call " + procedure + " " + values
