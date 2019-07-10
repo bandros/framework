@@ -3,6 +3,7 @@ package framework
 import (
 	"bytes"
 	"encoding/json"
+	"encoding/xml"
 	"errors"
 	"io/ioutil"
 	"net/http"
@@ -115,6 +116,14 @@ func (api *Api) Do(method string) error {
 
 func (api *Api) Get(data interface{}) error {
 	err := json.Unmarshal([]byte(api.body), &data)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (api *Api) GetXml(data interface{}) error {
+	err := xml.Unmarshal([]byte(api.body), &data)
 	if err != nil {
 		return err
 	}
