@@ -269,19 +269,18 @@ func (sql *Database) Result() ([]map[string]interface{}, error) {
 	sql.call = false
 	var err error
 	var rows *Rows
+	var stmt *Stmt
 	if sql.DB == nil {
 		sql.DB, err = MysqlConnect()
 		if err != nil {
 			return nil, err
 		}
 	}
-	//defer sql.DB.Close()
-	//if sql.transatction != nil {
-	//	rows, err = sql.transatction.Query(query)
-	//}else{
-	//	rows, err = sql.DB.Query(query)
-	//}
-	rows, err = sql.DB.Query(query)
+	stmt, err = sql.DB.Prepare(query)
+	if err != nil {
+		return nil, err
+	}
+	rows, err = stmt.Query()
 	sql.row = rows
 	if err != nil {
 		return nil, err
@@ -316,7 +315,7 @@ func (sql *Database) Result() ([]map[string]interface{}, error) {
 			if v == nil {
 				data[col] = ""
 			} else {
-				data[col] = v.(string)
+				data[col] = v
 			}
 		}
 		result = append(result, data)
