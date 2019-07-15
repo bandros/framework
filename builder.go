@@ -435,7 +435,11 @@ func (sql *Database) Update(query map[string]interface{}) error {
 		return errors.New("Query invalid")
 	}
 	whereBuild(sql)
-	querySql := "UPDATE " + sql.from + " SET "
+	var join = ""
+	if sql.join != "" {
+		join = " \n" + sql.join
+	}
+	querySql := "UPDATE " + sql.from + join + " SET "
 	var set []string
 	value := []interface{}{}
 	for i, v := range query {
@@ -464,7 +468,11 @@ func (sql *Database) UpdateBatch(query []map[string]interface{}, id string) erro
 	if query == nil {
 		return errors.New("query invalid")
 	}
-	querySql := "UPDATE " + sql.from + " SET "
+	var join = ""
+	if sql.join != "" {
+		join = " \n" + sql.join
+	}
+	querySql := "UPDATE " + sql.from + join + " SET "
 	var set map[string][]string
 	set = map[string][]string{}
 	var value map[string][]interface{}
