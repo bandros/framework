@@ -3,6 +3,7 @@ package framework
 import (
 	. "database/sql"
 	"errors"
+	"html"
 	"reflect"
 	"strconv"
 	"strings"
@@ -269,22 +270,23 @@ func (sql *Database) Result() ([]map[string]interface{}, error) {
 	sql.call = false
 	var err error
 	var rows *Rows
-	var stmt *Stmt
+	//var stmt *Stmt
 	if sql.DB == nil {
 		sql.DB, err = MysqlConnect()
 		if err != nil {
 			return nil, err
 		}
 	}
-	stmt, err = sql.DB.Prepare(query)
+	//stmt, err = sql.DB.Prepare(query)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//rows, err = stmt.Query()
+	rows, err = sql.DB.Query(query)
 	if err != nil {
 		return nil, err
 	}
-	rows, err = stmt.Query()
 	sql.row = rows
-	if err != nil {
-		return nil, err
-	}
 	columns, _ := rows.Columns()
 	count := len(columns)
 	values := make([]interface{}, count)
@@ -309,6 +311,7 @@ func (sql *Database) Result() ([]map[string]interface{}, error) {
 			b, ok := val.([]byte)
 			if ok {
 				v = string(b)
+				v = html.UnescapeString(v.(string))
 			} else {
 				v = val
 			}
