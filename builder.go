@@ -280,7 +280,7 @@ func (sql *Database) Result() ([]map[string]interface{}, error) {
 		return nil, err
 	}
 	rows, err = stmt.Query()
-	rows, err = sql.DB.Query(query)
+	//rows, err = sql.DB.Query(query)
 	if err != nil {
 		return nil, err
 	}
