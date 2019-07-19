@@ -22,8 +22,6 @@ type Database struct {
 	query             string
 	call              bool
 	DB                *DB
-	row               *Rows
-	stmt              *Stmt
 	Option            string
 	BeforeOption      string
 	transatction      *Tx
@@ -286,7 +284,6 @@ func (sql *Database) Result() ([]map[string]interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	sql.row = rows
 	columns, _ := rows.Columns()
 	count := len(columns)
 	values := make([]interface{}, count)
@@ -324,6 +321,8 @@ func (sql *Database) Result() ([]map[string]interface{}, error) {
 		result = append(result, data)
 	}
 
+	rows.Close()
+
 	return result, nil
 
 }
@@ -360,8 +359,6 @@ func insert(querySql string, value []interface{}, sql *Database) (interface{}, e
 	} else {
 		stmt, err = sql.DB.Prepare(querySql)
 	}
-
-	sql.stmt = stmt
 	if err != nil {
 		return 0, err
 	}
@@ -374,6 +371,7 @@ func insert(querySql string, value []interface{}, sql *Database) (interface{}, e
 	if err != nil {
 		return nil, err
 	}
+	stmt.Close()
 	return id, nil
 }
 func (sql *Database) Insert(query map[string]interface{}) (interface{}, error) {
@@ -542,15 +540,12 @@ func UpdateProses(sql *Database, value []interface{}) error {
 	} else {
 		stmt, err = sql.DB.Prepare(sql.query)
 	}
-	sql.stmt = stmt
-	if err != nil {
-		return err
-	}
 	//defer stmt.Close()
 	_, err = stmt.Exec(value...)
 	if err != nil {
 		return err
 	}
+	stmt.Close()
 	return nil
 }
 
@@ -584,12 +579,6 @@ func (sql *Database) Delete() error {
 	return nil
 }
 func (sql *Database) Close() {
-	if sql.row != nil {
-		sql.row.Close()
-	}
-	if sql.stmt != nil {
-		sql.stmt.Close()
-	}
 	if sql.DB != nil {
 		sql.DB.Close()
 	}
@@ -598,12 +587,6 @@ func (sql *Database) Close() {
 func (sql *Database) Clear() {
 	var tx = sql.transatction
 	var db = sql.DB
-	if sql.row != nil {
-		sql.row.Close()
-	}
-	if sql.stmt != nil {
-		sql.stmt.Close()
-	}
 	p := reflect.ValueOf(sql).Elem()
 	p.Set(reflect.Zero(p.Type()))
 	sql.transatction = tx
