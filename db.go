@@ -27,7 +27,7 @@ func MysqlConnect() (*sql.DB, error) {
 
 func MongoDbConnect(ctx context.Context) (*mongo.Database, error) {
 	var opt = options.Client().ApplyURI("mongodb://" + os.Getenv("mongoUser") + ": " +
-		os.Getenv("mongoPwd") + "@" + os.Getenv("mongoHost"))
+		os.Getenv("mongoPwd") + "@" + os.Getenv("mongoHost") + ":" + os.Getenv("mongoPort"))
 	var client, err = mongo.NewClient(opt)
 	if err != nil {
 		return nil, err
