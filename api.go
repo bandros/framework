@@ -16,6 +16,7 @@ import (
 type Api struct {
 	Url         string
 	Data        map[string]interface{}
+	Raw         string
 	Header      map[string]string
 	ContentType string
 	Username    string
@@ -31,52 +32,70 @@ func (api *Api) Do(method string) error {
 	var req *http.Request
 	if method == "POST" {
 		param := url.Values{}
-		for i, v := range api.Data {
-			var reflectValue = reflect.ValueOf(v)
-			switch reflectValue.Kind() {
-			case reflect.String:
-				param.Set(i, v.(string))
-			case reflect.Slice:
-				if reflect.TypeOf(v).String() != "[]string" {
-					return errors.New("slice only support []string type")
+		if api.Raw == "" {
+			for i, v := range api.Data {
+				var reflectValue = reflect.ValueOf(v)
+				switch reflectValue.Kind() {
+				case reflect.String:
+					param.Set(i, v.(string))
+				case reflect.Slice:
+					if reflect.TypeOf(v).String() != "[]string" {
+						return errors.New("slice only support []string type")
+					}
+					for _, v2 := range v.([]string) {
+						var index = i + "[]"
+						param.Add(index, v2)
+					}
+
+				case reflect.Map:
+					if reflect.TypeOf(v).String() != "map[string]string" {
+						return errors.New("map only support map[string]string type")
+					}
+					for i2, v2 := range v.(map[string]string) {
+						var index = i + "[" + i2 + "]"
+						param.Add(index, v2)
+					}
+				case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+					var str = strconv.Itoa(int(reflectValue.Uint()))
+					param.Set(i, str)
+				case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+					var str = strconv.Itoa(int(reflectValue.Int()))
+					param.Set(i, str)
+				default:
+					return errors.New(reflectValue.String() + " Not support")
 				}
-				for _, v2 := range v.([]string) {
-					var index = i + "[]"
-					param.Add(index, v2)
+				req, err = http.NewRequest(method, api.Url, bytes.NewBufferString(param.Encode()))
+				if err != nil {
+					return err
 				}
 
-			case reflect.Map:
-				if reflect.TypeOf(v).String() != "map[string]string" {
-					return errors.New("map only support map[string]string type")
-				}
-				for i2, v2 := range v.(map[string]string) {
-					var index = i + "[" + i2 + "]"
-					param.Add(index, v2)
-				}
-			case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-				var str = strconv.Itoa(int(reflectValue.Uint()))
-				param.Set(i, str)
-			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-				var str = strconv.Itoa(int(reflectValue.Int()))
-				param.Set(i, str)
-			default:
-				return errors.New(reflectValue.String() + " Not support")
+			}
+		} else {
+			var reader = strings.NewReader(api.Raw)
+			req, err = http.NewRequest(method, api.Url, reader)
+			if err != nil {
+				return err
 			}
 		}
-		req, err = http.NewRequest(method, api.Url, bytes.NewBufferString(param.Encode()))
+
 		if api.BasicAuth {
 			req.SetBasicAuth(api.Username, api.Password)
-		}
-		if err != nil {
-			return err
 		}
 	} else {
-		req, err = http.NewRequest("GET", api.Url, nil)
+		if api.Raw == "" {
+			req, err = http.NewRequest("GET", api.Url, nil)
+			if err != nil {
+				return err
+			}
+		} else {
+			var reader = strings.NewReader(api.Raw)
+			req, err = http.NewRequest("GET", api.Url, reader)
+			if err != nil {
+				return err
+			}
+		}
 		if api.BasicAuth {
 			req.SetBasicAuth(api.Username, api.Password)
-		}
-		if err != nil {
-			return err
 		}
 
 		param := req.URL.Query()
