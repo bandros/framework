@@ -25,17 +25,23 @@ func MysqlConnect() (*sql.DB, error) {
 	return db, nil
 }
 
-func MongoDbConnect(ctx context.Context) (*mongo.Database, error) {
-	var opt = options.Client().ApplyURI("mongodb://" + os.Getenv("mongoUser") + ": " +
-		os.Getenv("mongoPwd") + "@" + os.Getenv("mongoHost"))
+func MongoConnect(ctx context.Context) (*mongo.Client, *mongo.Database, error) {
+	var driver = "mongodb"
+	var mongoSrv = os.Getenv("mogoSrv")
+	if mongoSrv == "true" {
+		driver += "+srv"
+	}
+	var uri = driver + "://" + os.Getenv("mongoUser") + ":" +
+		os.Getenv("mongoPwd") + "@" + os.Getenv("mongoHost")
+	var opt = options.Client().ApplyURI(uri)
 	var client, err = mongo.NewClient(opt)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	err = client.Connect(ctx)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return client.Database(os.Getenv("mongoDb")), nil
+	return client, client.Database(os.Getenv("mongoDb")), nil
 }

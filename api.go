@@ -16,7 +16,7 @@ import (
 type Api struct {
 	Url         string
 	Data        map[string]interface{}
-	Raw         string
+	JsonData    interface{}
 	Header      map[string]string
 	ContentType string
 	Username    string
@@ -32,7 +32,7 @@ func (api *Api) Do(method string) error {
 	var req *http.Request
 	if method == "POST" {
 		param := url.Values{}
-		if api.Raw == "" {
+		if api.JsonData == "" {
 			for i, v := range api.Data {
 				var reflectValue = reflect.ValueOf(v)
 				switch reflectValue.Kind() {
@@ -71,7 +71,12 @@ func (api *Api) Do(method string) error {
 
 			}
 		} else {
-			var reader = strings.NewReader(api.Raw)
+			var jsonByte, err = json.Marshal(api.JsonData)
+			if err != nil {
+				return err
+			}
+			var data = string(jsonByte)
+			var reader = strings.NewReader(data)
 			req, err = http.NewRequest(method, api.Url, reader)
 			if err != nil {
 				return err
@@ -82,13 +87,18 @@ func (api *Api) Do(method string) error {
 			req.SetBasicAuth(api.Username, api.Password)
 		}
 	} else {
-		if api.Raw == "" {
+		if api.JsonData == "" {
 			req, err = http.NewRequest("GET", api.Url, nil)
 			if err != nil {
 				return err
 			}
 		} else {
-			var reader = strings.NewReader(api.Raw)
+			var jsonByte, err = json.Marshal(api.JsonData)
+			if err != nil {
+				return err
+			}
+			var data = string(jsonByte)
+			var reader = strings.NewReader(data)
 			req, err = http.NewRequest("GET", api.Url, reader)
 			if err != nil {
 				return err
