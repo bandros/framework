@@ -320,7 +320,7 @@ func (sql *Database) Result() ([]map[string]interface{}, error) {
 		}
 		result = append(result, data)
 	}
-	stmt.Close()
+	//stmt.Close()
 	rows.Close()
 
 	return result, nil
