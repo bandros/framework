@@ -142,7 +142,7 @@ func (api *Api) GetRaw() string {
 }
 
 func (api *Api) JsonData(raw interface{}) error {
-	var jsonByte, err = json.Marshal(api.JsonData)
+	var jsonByte, err = json.Marshal(raw)
 	if err != nil {
 		return err
 	}
