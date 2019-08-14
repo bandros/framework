@@ -32,7 +32,7 @@ func (api *Api) Do(method string) error {
 	var req *http.Request
 	if method == "POST" {
 		param := url.Values{}
-		if api.JsonData == "" {
+		if api.JsonData == "" || api.JsonData == nil {
 			for i, v := range api.Data {
 				var reflectValue = reflect.ValueOf(v)
 				switch reflectValue.Kind() {
@@ -87,7 +87,7 @@ func (api *Api) Do(method string) error {
 			req.SetBasicAuth(api.Username, api.Password)
 		}
 	} else {
-		if api.JsonData == "" {
+		if api.JsonData == "" || api.JsonData == nil {
 			req, err = http.NewRequest("GET", api.Url, nil)
 			if err != nil {
 				return err
