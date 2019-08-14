@@ -16,6 +16,7 @@ import (
 type Api struct {
 	Url         string
 	Data        map[string]interface{}
+	dataJsonRaw string
 	Header      map[string]string
 	ContentType string
 	Username    string
@@ -29,7 +30,13 @@ func (api *Api) Do(method string) error {
 	client := &http.Client{}
 	var err error
 	var req *http.Request
-	if method == "POST" {
+	if api.dataJsonRaw != "" {
+		var reader = strings.NewReader(api.dataJsonRaw)
+		req, err = http.NewRequest(method, api.Url, reader)
+		if err != nil {
+			return err
+		}
+	} else if method == "POST" {
 		param := url.Values{}
 		for i, v := range api.Data {
 			var reflectValue = reflect.ValueOf(v)
@@ -132,4 +139,13 @@ func (api *Api) GetXml(data interface{}) error {
 
 func (api *Api) GetRaw() string {
 	return api.body
+}
+
+func (api *Api) JsonData(raw interface{}) error {
+	var jsonByte, err = json.Marshal(api.JsonData)
+	if err != nil {
+		return err
+	}
+	api.dataJsonRaw = string(jsonByte)
+	return nil
 }
