@@ -99,7 +99,7 @@ func (sql *Database) WhereOr(field string, value interface{}) *Database {
 }
 func (sql *Database) StartGroup(op string) *Database {
 	op = strings.ToUpper(op)
-	if op != "AND" || op != "OR" {
+	if op != "AND" && op != "OR" {
 		op = "AND"
 	}
 	where := map[string]string{}
