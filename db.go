@@ -1,11 +1,8 @@
 package framework
 
 import (
-	"context"
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"os"
 )
 
@@ -23,25 +20,4 @@ func MysqlConnect() (*sql.DB, error) {
 		return nil, err
 	}
 	return db, nil
-}
-
-func MongoConnect(ctx context.Context) (*mongo.Client, *mongo.Database, error) {
-	var driver = "mongodb"
-	var mongoSrv = os.Getenv("mogoSrv")
-	if mongoSrv == "true" {
-		driver += "+srv"
-	}
-	var uri = driver + "://" + os.Getenv("mongoUser") + ":" +
-		os.Getenv("mongoPwd") + "@" + os.Getenv("mongoHost")
-	var opt = options.Client().ApplyURI(uri)
-	var client, err = mongo.NewClient(opt)
-	if err != nil {
-		return nil, nil, err
-	}
-	err = client.Connect(ctx)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return client, client.Database(os.Getenv("mongoDb")), nil
 }
