@@ -23,6 +23,7 @@ type Api struct {
 	Password    string
 	BasicAuth   bool
 	body        string
+	Status      string
 }
 
 func (api *Api) Do(method string) error {
@@ -118,6 +119,7 @@ func (api *Api) Do(method string) error {
 		return err
 	}
 	api.body = string(body)
+	api.Status = resp.Status
 	return nil
 }
 
