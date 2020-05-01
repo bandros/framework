@@ -45,7 +45,7 @@ func (api *Api) Do(method string) error {
 		if err != nil {
 			return err
 		}
-	} else if method == "POST" {
+	} else if method == "POST" || method == "DELETE" || method == "PUT" {
 		param := url.Values{}
 		for i, v := range api.Data {
 			var reflectValue = reflect.ValueOf(v)
