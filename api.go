@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -80,10 +79,8 @@ func (api *Api) Do(method string) error {
 				return errors.New(reflectValue.String() + " Not support")
 			}
 		}
-		fmt.Println(param.Encode())
 		if api.ContentType == "application/x-www-form-urlencoded" {
-			payload := strings.NewReader("email=mocha.fiqri@gmail.com&fields%5Balamat%5D=-&fields%5Bid_member%5D=120033000020&fields%5Bno_hp%5D=6281313120403&fields%5Btanggal_daftar%5D=2020-05-01+11%3A47%3A34&full_name=Mochamad+Fiqri+Al+Muhafizd&list=51154&tags=pendaftaran")
-			fmt.Println("ok7")
+			payload := strings.NewReader(param.Encode())
 			req, err = http.NewRequest(method, api.Url, payload)
 		} else {
 			req, err = http.NewRequest(method, api.Url, bytes.NewBufferString(param.Encode()))
