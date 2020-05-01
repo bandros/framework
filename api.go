@@ -82,8 +82,8 @@ func (api *Api) Do(method string) error {
 		}
 		fmt.Println(param.Encode())
 		if api.ContentType == "application/x-www-form-urlencoded" {
-			payload := strings.NewReader("lists=19&full_name=Example&email=example@kirim.email&fields%5Bno_hp%5D=+628123456789&fields%5Balamat%5D=Indonesia&tags=new%20tag%2C%20test%20tag")
-			fmt.Println("ok3")
+			payload := strings.NewReader("=mocha.fiqri%40gmail.com&fields%5Balamat%5D=-&fields%5Bid_member%5D=120033000020&fields%5Bno_hp%5D=6281313120403&fields%5Btanggal_daftar%5D=2020-05-01+11%3A47%3A34&full_name=Mochamad+Fiqri+Al+Muhafizd&list=51154&tags=pendaftaran")
+			fmt.Println("ok5")
 			req, err = http.NewRequest(method, api.Url, payload)
 		} else {
 			req, err = http.NewRequest(method, api.Url, bytes.NewBufferString(param.Encode()))
