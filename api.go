@@ -82,7 +82,9 @@ func (api *Api) Do(method string) error {
 		}
 		fmt.Println(param.Encode())
 		if api.ContentType == "application/x-www-form-urlencoded" {
-			req, err = http.NewRequest(method, api.Url, strings.NewReader(param.Encode()))
+			payload := strings.NewReader(param.Encode())
+			fmt.Println("ok")
+			req, err = http.NewRequest(method, api.Url, payload)
 		} else {
 			req, err = http.NewRequest(method, api.Url, bytes.NewBufferString(param.Encode()))
 		}
