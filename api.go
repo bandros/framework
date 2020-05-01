@@ -29,6 +29,9 @@ type Api struct {
 func (api *Api) Do(method string) error {
 	method = strings.ToUpper(method)
 	client := &http.Client{}
+	if api.Header == nil {
+		api.Header = map[string]string{}
+	}
 	if api.ContentType == "" {
 		api.Header["Content-Type"] = "application/x-www-form-urlencoded"
 	} else {
@@ -106,10 +109,6 @@ func (api *Api) Do(method string) error {
 		req.URL.RawQuery = param.Encode()
 	}
 
-	///api.Header = map[string]string{}
-	if api.Header == nil {
-		api.Header = map[string]string{}
-	}
 	for i, v := range api.Header {
 		req.Header.Set(i, v)
 	}
