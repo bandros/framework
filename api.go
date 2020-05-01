@@ -29,6 +29,11 @@ type Api struct {
 func (api *Api) Do(method string) error {
 	method = strings.ToUpper(method)
 	client := &http.Client{}
+	if api.ContentType == "" {
+		api.Header["Content-Type"] = "application/x-www-form-urlencoded"
+	} else {
+		api.Header["Content-Type"] = api.ContentType
+	}
 	var err error
 	var req *http.Request
 	if api.dataJsonRaw != "" {
@@ -71,7 +76,11 @@ func (api *Api) Do(method string) error {
 				return errors.New(reflectValue.String() + " Not support")
 			}
 		}
-		req, err = http.NewRequest(method, api.Url, bytes.NewBufferString(param.Encode()))
+		if api.ContentType == "application/x-www-form-urlencoded" {
+			req, err = http.NewRequest(method, api.Url, strings.NewReader(param.Encode()))
+		} else {
+			req, err = http.NewRequest(method, api.Url, bytes.NewBufferString(param.Encode()))
+		}
 		if api.BasicAuth {
 			req.SetBasicAuth(api.Username, api.Password)
 		}
@@ -100,11 +109,6 @@ func (api *Api) Do(method string) error {
 	///api.Header = map[string]string{}
 	if api.Header == nil {
 		api.Header = map[string]string{}
-	}
-	if api.ContentType == "" {
-		api.Header["Content-Type"] = "application/x-www-form-urlencoded"
-	} else {
-		api.Header["Content-Type"] = api.ContentType
 	}
 	for i, v := range api.Header {
 		req.Header.Set(i, v)
