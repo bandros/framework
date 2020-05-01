@@ -80,7 +80,7 @@ func (api *Api) Do(method string) error {
 				return errors.New(reflectValue.String() + " Not support")
 			}
 		}
-		fmt.Println(param.Encode)
+		fmt.Println(param.Encode())
 		if api.ContentType == "application/x-www-form-urlencoded" {
 			req, err = http.NewRequest(method, api.Url, strings.NewReader(param.Encode()))
 		} else {
