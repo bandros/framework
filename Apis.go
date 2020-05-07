@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"errors"
+	"io"
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
@@ -61,10 +62,16 @@ func (api *Apis) Do(method string) error {
 			var str = strconv.Itoa(int(reflectValue.Int()))
 			writer.WriteField(i, str)
 		case *multipart.FileHeader:
-			writer.CreateFormFile(i, dt.Filename)
+			file, _ := dt.Open()
+			f, _ := writer.CreateFormFile(i, dt.Filename)
+			_, _ = io.Copy(f, file)
+			_ = file.Close()
 		case []*multipart.FileHeader:
 			for _, v2 := range dt {
-				writer.CreateFormFile(i+"[]", v2.Filename)
+				file, _ := v2.Open()
+				f, _ := writer.CreateFormFile(i+"[]", v2.Filename)
+				_, _ = io.Copy(f, file)
+				_ = file.Close()
 			}
 		default:
 			return errors.New(reflectValue.String() + " Not support")
