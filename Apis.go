@@ -54,10 +54,10 @@ func (api *Apis) Do(method string) error {
 			writer.WriteField(i, str)
 		case *multipart.FileHeader:
 			file, _ := dt.Open()
-			defer file.Close()
-			write, _ := writer.CreateFormFile("file", dt.Filename)
+			write, _ := writer.CreateFormFile(i, dt.Filename)
 			fmt.Println(dt.Filename)
 			_, _ = io.Copy(write, file)
+			_ = file.Close()
 		case []*multipart.FileHeader:
 			for _, v2 := range dt {
 				file, _ := v2.Open()
