@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
@@ -30,15 +31,6 @@ func (api *Apis) Do(method string) error {
 	payload := &bytes.Buffer{}
 	writer := multipart.NewWriter(payload)
 
-	if api.Header == nil {
-		api.Header = map[string]string{}
-	}
-	if api.ContentType == "" {
-		api.Header["Content-Type"] = writer.FormDataContentType()
-	} else {
-		api.Header["Content-Type"] = api.ContentType
-	}
-
 	for i, v := range api.Data {
 		var reflectValue = reflect.ValueOf(v)
 		switch dt := v.(type) {
@@ -49,7 +41,6 @@ func (api *Apis) Do(method string) error {
 				var index = i + "[]"
 				writer.WriteField(index, v2)
 			}
-
 		case map[string]string:
 			for i2, v2 := range dt {
 				var index = i + "[" + i2 + "]"
@@ -63,9 +54,10 @@ func (api *Apis) Do(method string) error {
 			writer.WriteField(i, str)
 		case *multipart.FileHeader:
 			file, _ := dt.Open()
-			f, _ := writer.CreateFormFile(i, dt.Filename)
-			_, _ = io.Copy(f, file)
-			_ = file.Close()
+			defer file.Close()
+			write, _ := writer.CreateFormFile("file", dt.Filename)
+			fmt.Println(dt.Filename)
+			_, _ = io.Copy(write, file)
 		case []*multipart.FileHeader:
 			for _, v2 := range dt {
 				file, _ := v2.Open()
@@ -78,15 +70,31 @@ func (api *Apis) Do(method string) error {
 		}
 	}
 
+	err := writer.Close()
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	client := &http.Client{}
 	req, err := http.NewRequest(method, url, payload)
 
 	if err != nil {
 		return err
 	}
-	req.Header.Add("Authorization", "Bearer 9f5c79ee273bcf3eb1a4aa456d516ab5")
 
-	req.Header.Set("Content-Type", writer.FormDataContentType())
+	if api.Header == nil {
+		api.Header = map[string]string{}
+	}
+	if api.ContentType == "" {
+		api.Header["Content-Type"] = writer.FormDataContentType()
+	} else {
+		api.Header["Content-Type"] = api.ContentType
+	}
+
+	for i, v := range api.Header {
+		req.Header.Set(i, v)
+	}
+
 	res, err := client.Do(req)
 	defer res.Body.Close()
 	body, err := ioutil.ReadAll(res.Body)
