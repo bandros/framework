@@ -15,6 +15,7 @@ type Database struct {
 	where             []map[string]string
 	whereResult       string
 	join              string
+	tableDelete       string
 	groupBy           string
 	having            string
 	orderBy           []string
@@ -548,6 +549,10 @@ func UpdateProses(sql *Database, value []interface{}) error {
 	stmt.Close()
 	return nil
 }
+func (sql *Database) TableDelete(table string) *Database {
+	sql.tableDelete = table
+	return sql
+}
 
 func (sql *Database) Delete() error {
 	var err error
@@ -566,7 +571,7 @@ func (sql *Database) Delete() error {
 	if sql.join != "" {
 		join = " \n" + sql.join
 	}
-	querySql := "DELETE FROM " + sql.from + join + " "
+	querySql := "DELETE " + sql.tableDelete + " FROM " + sql.from + join + " "
 	sql.query = querySql
 	if sql.whereResult != "" {
 		sql.query += "\nWHERE " + sql.whereResult
