@@ -562,7 +562,11 @@ func (sql *Database) Delete() error {
 		}
 	}
 	whereBuild(sql)
-	querySql := "DELETE FROM " + sql.from + " "
+	var join = ""
+	if sql.join != "" {
+		join = " \n" + sql.join
+	}
+	querySql := "DELETE FROM " + sql.from + join + " "
 	sql.query = querySql
 	if sql.whereResult != "" {
 		sql.query += "\nWHERE " + sql.whereResult
